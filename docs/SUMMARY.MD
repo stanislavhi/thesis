@@ -234,32 +234,59 @@ The bound is satisfied at localization, but not violated — the system escapes 
 ```
 /
 ├── README.md
+├── requirements.txt
 ├── core/
-│   ├── dynamics.py          # ← START HERE: the two coupled ODEs
-│   ├── entropy.py           # entropy production rate σ
-│   ├── kl_divergence.py     # ε = D_KL(Q‖P) for 2-state system
-│   └── coupling.py          # derive α_coup from substrate parameters
-├── substrate/
-│   ├── double_well.py       # V(x) = ax⁴ − bx²
-│   ├── kramers.py           # Kramers escape rate k_escape
-│   ├── heat_capacity.py     # Schottky C_V for two-state system
-│   └── fokker_planck.py     # numerical FP solver
-├── tests/
-│   ├── test_bound.py        # PRIMARY TEST: does σ²·ε ≥ C_phys hold?
-│   ├── test_localization.py # verify bound survives α_coup → 0
-│   ├── test_static_model.py # confirm snapshot case breaks the regress
-│   └── test_spin_boson_map.py
+│   ├── base.py             # Abstract Base Classes (EvolutionaryAgent, Mutator)
+│   ├── chaos.py            # Lorenz attractor chaos engine
+│   ├── monitor.py          # Architecture stagnation monitor
+│   └── scaler.py           # Cosmological physics scaler
+├── agents/
+│   ├── rl_policy.py        # Evolving RL policy + chaos injector
+│   └── swarm.py            # Swarm agents, channel, aggregator, injector
+├── physics/
+│   ├── core/
+│   │   ├── dynamics.py     # ← START HERE: the two coupled ODEs
+│   │   ├── entropy.py      # entropy production rate σ
+│   │   ├── kl_divergence.py # ε = D_KL(Q‖P) for 2-state system
+│   │   └── coupling.py     # derive α_coup from substrate parameters
+│   ├── substrate/
+│   │   ├── double_well.py  # V(x) = ax⁴ − bx²
+│   │   ├── kramers.py      # Kramers escape rate k_escape
+│   │   └── heat_capacity.py # Schottky C_V for two-state system
+│   ├── tests/
+│   │   ├── test_bound.py   # PRIMARY TEST: does σ²·ε ≥ C_phys hold?
+│   │   ├── test_localization.py # verify bound survives α_coup → 0
+│   │   └── test_static_model.py # confirm snapshot case breaks the regress
+│   └── experiments/
+│       ├── sweep_eta.py    # sweep learning rate η
+│       └── sweep_barrier.py # sweep ΔE
 ├── experiments/
-│   ├── sweep_eta.py         # sweep learning rate η
-│   ├── sweep_barrier.py     # sweep ΔE
-│   ├── rnn_analog.py        # RNN hidden-state self-prediction test
-│   └── spin_boson_compare.py
-└── notebooks/
-    ├── 01_minimal_toy_model.ipynb
-    ├── 02_alpha_derivation.ipynb
-    ├── 03_falsifiability_test.ipynb
-    └── 04_spin_boson_mapping.ipynb
+│   ├── run_swarm.py        # Multi-agent swarm experiment
+│   ├── run_rl.py           # RL agent experiment (CartPole)
+│   ├── test_robustness.py  # Chaos vs Static ablation study
+│   ├── grand_challenge/
+│   │   └── run_holographic_swarm.py  # Blind agents solving CartPole
+│   └── stress_tests/
+│       └── noise_test.py   # Sensory noise resilience test
+├── visualization/
+│   ├── plot_swarm.py       # Swarm training visualizer
+│   └── plot_rl.py          # RL training visualizer
+└── docs/
+    ├── README.md           # Full documentation
+    ├── SUMMARY.MD          # This file
+    ├── THEORY.md           # The Unified Structural Feature
+    ├── UNIFIED_THEORY.md   # Stochastic mechanism theory
+    ├── AGENTS.md           # Agent architecture descriptions
+    ├── ROADMAP.md          # Research roadmap
+    └── CHANGELOG.md        # Version history
 ```
+
+### Planned (Not Yet Implemented)
+- `physics/substrate/fokker_planck.py` — Numerical Fokker-Planck solver
+- `physics/experiments/spin_boson_compare.py` — Spin-boson exact solution mapping
+- `physics/tests/test_spin_boson_map.py` — Spin-boson validation
+- `experiments/rnn_analog.py` — RNN hidden-state self-prediction test
+- `notebooks/` — Interactive Jupyter notebooks
 
 ---
 

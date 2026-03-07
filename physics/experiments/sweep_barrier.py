@@ -52,8 +52,9 @@ def sweep_barrier():
     plt.ylabel('Entropy Production (Sigma)')
     plt.title('Stability vs Entropy')
     plt.grid(True)
-    plt.savefig('experiment_sweep_barrier.png')
-    print("Plot saved to experiment_sweep_barrier.png")
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/experiment_sweep_barrier.png'))
+    plt.savefig(output_file)
+    print(f"Plot saved to {output_file}")
 
 if __name__ == "__main__":
     sweep_barrier()

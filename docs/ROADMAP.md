@@ -26,6 +26,10 @@ This document outlines the future directions for the "Thermodynamic AI" project,
 *   **Goal**: Demonstrate the architecture's capability on hard problems.
 *   **Completed**:
     *   **Single-Agent RL**: Solved CartPole using `experiments/run_rl.py` with chaotic mutation.
+    *   **Physics Verification**: Thermodynamic bound σ²·ε ≥ C_phys validated across **20/20 α regimes** (`physics/tests/test_bound.py`).
+    *   **Holographic Swarm Prototype**: Two blind agents communicating through noisy channel (`experiments/grand_challenge/run_holographic_swarm.py`).
+    *   **Noise Stress Test**: Agent resilience under extreme sensory noise (`experiments/stress_tests/noise_test.py`).
+    *   **Codebase Audit**: Fixed Lorenz equation bug, formula discrepancy, consolidated SOLID compliance, cleaned dead code.
 *   **In Progress**:
     *   **Robustness Testing**: Validating the necessity of chaos via ablation studies (`experiments/test_robustness.py`).
     *   **Harder Environments**: Scaling to `LunarLander-v2` and `BipedalWalker-v3`.

@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from agents.solid_agents import SolidEvolvingPolicy, SolidChaosMutator
+from agents.rl_policy import EvolvingPolicy, RLChaosInjector
+from core.chaos import LorenzGenerator
 
 class NoisyEnvWrapper(gym.Wrapper):
     """
@@ -42,8 +43,8 @@ def run_noise_trial(noise_level, seed=42):
     input_dim = env.observation_space.shape[0]
     output_dim = env.action_space.n
     
-    agent = SolidEvolvingPolicy(input_dim, 4, output_dim)
-    mutator = SolidChaosMutator()
+    agent = EvolvingPolicy(input_dim, 4, output_dim)
+    mutator = RLChaosInjector(LorenzGenerator())
     optimizer = optim.Adam(agent.parameters(), lr=0.01)
     
     scores = deque(maxlen=50)

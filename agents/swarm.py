@@ -131,4 +131,5 @@ class ChaosInjector:
                 n_out_2 = min(old[2].out_features, new[2].out_features)
                 new[2].weight[:n_out_2, :n_in_2] = old[2].weight[:n_out_2, :n_in_2]
                 new[2].bias[:n_out_2] = old[2].bias[:n_out_2]
-        except: pass
+        except Exception as e:
+            print(f"Warning: weight transfer failed: {e}")

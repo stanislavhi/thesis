@@ -52,8 +52,9 @@ def sweep_eta():
     plt.title('Accuracy vs Speed')
     
     plt.tight_layout()
-    plt.savefig('experiment_sweep_eta.png')
-    print("Plot saved to experiment_sweep_eta.png")
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/experiment_sweep_eta.png'))
+    plt.savefig(output_file)
+    print(f"Plot saved to {output_file}")
 
 if __name__ == "__main__":
     sweep_eta()

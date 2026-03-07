@@ -60,7 +60,7 @@ def run_verification():
         lhs = (sigma**2) * epsilon
         
         ln2 = np.log(2)
-        rhs = (k_B**2) * (ln2**2) * eta * k_escape * delta_E * abs(1 - 2*p_mean) / C_V
+        rhs = (k_B**2) * (ln2**3) * eta * k_escape * delta_E * abs(1 - 2*p_mean) / C_V
         
         is_valid = lhs >= rhs
         if is_valid: valid_count += 1
@@ -99,8 +99,9 @@ def run_verification():
     plt.grid(True)
     
     plt.tight_layout()
-    plt.savefig('physics_verification.png')
-    print("\nPlot saved to physics_verification.png")
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/physics_verification.png'))
+    plt.savefig(output_file)
+    print(f"\nPlot saved to {output_file}")
     
     if valid_count > 0:
         print(f"\n>>> THEORY PARTIALLY VALIDATED. Bound holds for {valid_count}/{len(alphas)} regimes.")

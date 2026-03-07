@@ -9,7 +9,7 @@ class LorenzGenerator:
         dt = 0.01
         dx = self.sigma * (self.y - self.x) * dt
         dy = (self.x * (self.rho - self.z) - self.y) * dt
-        dz = (self.x * self.z - self.beta * self.z) * dt
+        dz = (self.x * self.y - self.beta * self.z) * dt
         
         self.x += dx
         self.y += dy

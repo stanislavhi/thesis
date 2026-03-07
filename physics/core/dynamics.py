@@ -12,34 +12,6 @@ class CoupledDynamics:
         self.alpha = alpha  # Coupling constant
         self.T = temperature
 
-    def system(self, state, t):
-        q, p = state
-        
-        # Safety clamps
-        epsilon = 1e-9
-        q = np.clip(q, epsilon, 1 - epsilon)
-        p = np.clip(p, epsilon, 1 - epsilon)
-        
-        # 1. Model Update (dq/dt)
-        dq_dt = -self.eta * np.log( (q * (1 - p)) / (p * (1 - q)) )
-        
-        # 2. Physical Drift (dp/dt)
-        # Deterministic part
-        drift = self.alpha * np.abs(dq_dt)
-        
-        # Stochastic part (Langevin noise)
-        # We approximate noise here for the derivative. 
-        # In a rigorous SDE solver, noise is added to the state update, not the derivative.
-        # But for this RK4 implementation, we'll add a fluctuating term to the drift.
-        # Magnitude ~ sqrt(2 * T)
-        noise = 0.0
-        if self.T > 0:
-            noise = np.random.normal(0, np.sqrt(2 * self.T * 0.01)) # Scaled for dt approx
-            
-        dp_dt = drift + noise
-        
-        return np.array([dq_dt, dp_dt])
-
     def simulate(self, q0, p0, t_span):
         """
         Runs the simulation over the given time span using RK4.

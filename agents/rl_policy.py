@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from core.base import EvolutionaryAgent, Mutator
 
-class EvolvingPolicy(nn.Module):
+class EvolvingPolicy(EvolutionaryAgent):
     def __init__(self, input_dim, hidden_dim, output_dim):
         super().__init__()
         self.net = nn.Sequential(
@@ -15,7 +16,13 @@ class EvolvingPolicy(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-class RLChaosInjector:
+    def get_topology_info(self):
+        return {
+            "hidden_size": self.net[0].out_features,
+            "activation": str(self.net[1])
+        }
+
+class RLChaosInjector(Mutator):
     def __init__(self, generator):
         self.gen = generator
     
@@ -70,4 +77,5 @@ class RLChaosInjector:
                 n_out_2 = min(old[2].out_features, new[2].out_features)
                 new[2].weight[:n_out_2, :n_in_2] = old[2].weight[:n_out_2, :n_in_2]
                 new[2].bias[:n_out_2] = old[2].bias[:n_out_2]
-        except: pass
+        except Exception as e:
+            print(f"Warning: weight transfer failed: {e}")
