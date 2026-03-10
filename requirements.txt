@@ -4,3 +4,4 @@ matplotlib
 torch
 gymnasium
 pandas
+openai

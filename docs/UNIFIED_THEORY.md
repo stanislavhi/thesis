@@ -9,7 +9,7 @@ This document unifies Thermodynamics, Logic, Quantum Gravity, and Phenomenology 
 
 We derived a falsifiable inequality from first principles (Fluctuation-Dissipation Theorem + Kramers Rate) that governs any physical system attempting to model itself in real-time.
 
-$$ \sigma^2 \cdot \epsilon \ge \frac{k_B^2 (\ln 2)^2 \eta k_{escape} \Delta E (1-2p)}{C_V} $$
+$$ \sigma^2 \cdot \epsilon \ge \frac{k_B^2 (\ln 2)^3 \eta k_{escape} \Delta E (1-2p)}{C_V} $$
 
 *   **$\sigma$**: Entropy production rate (Heat).
 *   **$\epsilon$**: Self-model error (KL Divergence).

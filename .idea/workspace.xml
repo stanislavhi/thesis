@@ -4,26 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="feat: prototype 2">
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/thermodynamic/thermo_agent.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/thermodynamic/thermo_injector.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/stress_tests/lunar_lander_brain_damage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/thermodynamic_agent_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/experiments/validate_transformer_bound.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/qwen/experiments/compare_sampling.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/thesis.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="fix: csv">
+      <change afterPath="$PROJECT_DIR$/agents/real_world/cortex_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/self_evolving_llm/evolving_llm_agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/self_evolving_llm/holographic_swarm.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/autonomous_reasoning_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/reasoning_recovery_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/swarm_collaboration_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qwen/experiments/train_toy_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/run_rl.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/run_rl.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/run_swarm.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/run_swarm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/experiment_sweep_barrier.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/experiment_sweep_barrier.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/experiment_sweep_eta.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/experiment_sweep_eta.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/physics_verification.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/physics_verification.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/robustness_test.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/robustness_test.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/swarm_evolution.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/swarm_evolution.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/swarm_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/logs/swarm_log.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/SUMMARY.MD" beforeDir="false" afterPath="$PROJECT_DIR$/docs/SUMMARY.MD" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qwen/experiments/compare_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/qwen/experiments/compare_sampling.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/qwen/experiments/sampling_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/qwen/experiments/sampling_comparison.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +97,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test_robustness">
+  <component name="RunManager" selected="Python.run_swarm">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="thesis" />
       <option name="ENV_FILES" value="" />
@@ -219,11 +215,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.run_swarm" />
         <item itemvalue="Python.test_robustness" />
         <item itemvalue="Python tests.Python tests in test_qwen_thermodynamic.py" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.plot_swarm" />
-        <item itemvalue="Python.run_swarm" />
       </list>
     </recent_temporary>
   </component>
@@ -258,12 +254,30 @@
       <option name="project" value="LOCAL" />
       <updated>1772889591861</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="feat: prototype 3">
+      <option name="closed" value="true" />
+      <created>1773141627145</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1773141627145</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fix: csv">
+      <option name="closed" value="true" />
+      <created>1773142847908</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1773142847908</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: prototype" />
     <MESSAGE value="feat: prototype 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: prototype 2" />
+    <MESSAGE value="feat: prototype 3" />
+    <MESSAGE value="fix: csv" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: csv" />
   </component>
 </project>

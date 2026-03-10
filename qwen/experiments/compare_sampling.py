@@ -62,29 +62,39 @@ def calculate_repetition_rate(tokens):
 
 def run_comparison():
     print("=" * 60)
-    print("Running Sampling Comparison Experiment")
+    print("Running Sampling Comparison Experiment (Qualitative)")
     print("=" * 60)
 
-    # 1. Setup Model
-    device = torch.device('cpu') # Use CPU for this demo
-    vocab_size = 1000
-    hidden_dim = 256
+    # 1. Load Trained Toy Model
+    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/toy_model.pt'))
+    if not os.path.exists(model_path):
+        print(f"Error: Model not found at {model_path}. Run train_toy_model.py first.")
+        return
+
+    checkpoint = torch.load(model_path)
+    vocab_size = checkpoint['vocab_size']
+    hidden_dim = checkpoint['hidden_dim']
+    char_to_idx = checkpoint['char_to_idx']
+    idx_to_char = checkpoint['idx_to_char']
+    
+    device = torch.device('cpu')
     model = QwenThermodynamicModel(
         vocab_size=vocab_size,
         hidden_dim=hidden_dim,
         num_heads=4,
-        num_layers=4,
-        max_seq_len=128
+        num_layers=2,
+        max_seq_len=64
     ).to(device)
+    model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
 
-    # 2. Define Prompts (Dummy for now)
-    prompts = [torch.randint(0, vocab_size, (1, 10)).to(device) for _ in range(5)]
+    # 2. Define Prompts
+    prompt_text = "Alice was"
+    prompt_ids = torch.tensor([[char_to_idx[c] for c in prompt_text]], dtype=torch.long).to(device)
     
     results = []
 
     # 3. Define Methods to Compare
-    # IMPORTANT: Set max_length explicitly to avoid generating 2048 tokens!
     common_max_len = 64
     
     methods = [
@@ -96,57 +106,38 @@ def run_comparison():
 
     # 4. Run Experiment
     for name, config in methods:
-        print(f"\nTesting Method: {name}")
-        
-        perplexities = []
-        entropies = []
-        repetition_rates = []
+        print(f"\n--- Method: {name} ---")
         
         # Use appropriate sampler
         if "Thermodynamic" in name:
             sampler = ThermodynamicSampler(model, config)
-            # Note: sampler.sample uses config.max_length internally
             generate_fn = lambda p: sampler.sample(p, temperature_schedule=True)
         else:
             inferencer = QwenThermodynamicInferencer(model, config)
             generate_fn = lambda p: inferencer.generate(p, max_length=common_max_len)
 
-        for i, prompt in enumerate(prompts):
-            print(f"  Prompt {i+1}/5...", end='\r')
-            # Generate
-            with torch.no_grad():
-                output, diagnostics = generate_fn(prompt)
-            
-            # Calculate Metrics
-            with torch.no_grad():
-                logits, _ = model(output)
-                shift_logits = logits[..., :-1, :].contiguous()
-                shift_labels = output[..., 1:].contiguous()
-                ppl = calculate_perplexity(shift_logits, shift_labels)
-            
-            # Entropy (avg over sequence)
-            probs = torch.softmax(logits, dim=-1)
-            entropy = -torch.sum(probs * torch.log(probs + 1e-8), dim=-1).mean().item()
-            
-            # Repetition
-            rep_rate = calculate_repetition_rate(output[0])
-            
-            perplexities.append(ppl)
-            entropies.append(entropy)
-            repetition_rates.append(rep_rate)
+        # Generate
+        with torch.no_grad():
+            output, diagnostics = generate_fn(prompt_ids)
         
-        print(f"  Prompt 5/5... Done.")
-
-        # Aggregate
-        avg_ppl = np.mean(perplexities)
-        avg_ent = np.mean(entropies)
-        avg_rep = np.mean(repetition_rates)
+        # Decode
+        generated_text = "".join([idx_to_char[idx.item()] for idx in output[0]])
+        print(f"Output: \"{generated_text}\"")
         
-        print(f"  Perplexity: {avg_ppl:.2f}")
-        print(f"  Entropy:    {avg_ent:.2f}")
-        print(f"  Repetition: {avg_rep:.2f}")
+        # Calculate Metrics
+        with torch.no_grad():
+            logits, _ = model(output)
+            shift_logits = logits[..., :-1, :].contiguous()
+            shift_labels = output[..., 1:].contiguous()
+            ppl = calculate_perplexity(shift_logits, shift_labels)
         
-        results.append(ExperimentResult(name, avg_ppl, avg_ent, avg_rep, 0.0))
+        probs = torch.softmax(logits, dim=-1)
+        entropy = -torch.sum(probs * torch.log(probs + 1e-8), dim=-1).mean().item()
+        rep_rate = calculate_repetition_rate(output[0])
+        
+        print(f"Metrics: PPL={ppl:.2f} | Entropy={entropy:.2f} | Repetition={rep_rate:.2f}")
+        
+        results.append(ExperimentResult(name, ppl, entropy, rep_rate, 0.0))
 
     # 5. Visualize Results
     plot_results(results)
@@ -165,7 +156,7 @@ def plot_results(results: List[ExperimentResult]):
     # Plot Perplexity (Bar)
     ax1.bar(x - width, ppls, width, label='Perplexity (Lower is Better)', color='skyblue')
     ax1.set_ylabel('Perplexity')
-    ax1.set_title('Thermodynamic vs Standard Sampling')
+    ax1.set_title('Thermodynamic vs Standard Sampling (Qualitative Test)')
     ax1.set_xticks(x)
     ax1.set_xticklabels(names)
     
