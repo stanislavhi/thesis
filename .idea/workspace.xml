@@ -4,63 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="feat: prototype">
-      <change afterPath="$PROJECT_DIR$/TODO.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/rl_policy.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/solid_agents.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/swarm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/chaos.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/monitor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/scaler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/AGENTS.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/ROADMAP.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/SUMMARY.MD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/evolution_v2/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/evolution_v2/core/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/grand_challenge/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/grand_challenge/run_holographic_swarm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/run_rl.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/run_swarm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/stress_tests/noise_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/test_robustness.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logs/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/core/coupling.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/core/dynamics.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/core/entropy.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/core/kl_divergence.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/experiments/sweep_barrier.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/experiments/sweep_eta.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/substrate/double_well.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/substrate/heat_capacity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/substrate/kramers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/tests/test_bound.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/tests/test_localization.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/physics/tests/test_static_model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/visualization/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/visualization/plot_rl.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/visualization/plot_swarm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/checkstyle-idea.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TASKS.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/THEORY.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/THEORY.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tester.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/thermodynamic_evolution.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/thermodynamic_training_log.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/visualize.py" beforeDir="false" />
+    <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="feat: prototype 2">
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/thermodynamic/thermo_agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents/thermodynamic/thermo_injector.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/stress_tests/lunar_lander_brain_damage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/thermodynamic_agent_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/physics/experiments/validate_transformer_bound.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/qwen/experiments/compare_sampling.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/thesis.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/run_rl.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/run_rl.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/run_swarm.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/run_swarm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/experiment_sweep_barrier.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/experiment_sweep_barrier.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/experiment_sweep_eta.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/experiment_sweep_eta.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/physics_verification.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/physics_verification.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/robustness_test.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/robustness_test.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/swarm_evolution.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/swarm_evolution.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/swarm_log.csv" beforeDir="false" afterPath="$PROJECT_DIR$/logs/swarm_log.csv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +33,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;stanislavhi&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/stanislavhi/thesis.git&quot;,
+    &quot;accountId&quot;: &quot;087ccd67-d5b4-46fc-bba1-319294cbfe7f&quot;
+  }
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -90,6 +65,8 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python tests.Python tests in test_qwen_thermodynamic.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
     &quot;Python.noise_test.executor&quot;: &quot;Run&quot;,
     &quot;Python.plot_rl.executor&quot;: &quot;Run&quot;,
     &quot;Python.plot_swarm.executor&quot;: &quot;Run&quot;,
@@ -109,10 +86,14 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/one&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/stanislavhiznicenco/IdeaProjects/thesis&quot;
+    &quot;last_opened_file_path&quot;: &quot;/Users/stanislavhiznicenco/IdeaProjects/thesis&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.22336066&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -121,18 +102,7 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.test_robustness">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="thesis" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="thesis" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="thesis" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -141,12 +111,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/qwen" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/qwen/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -155,7 +125,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="noise_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="plot_swarm" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="thesis" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -164,37 +134,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.14 (tester)" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/experiments/stress_tests" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/stress_tests/noise_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="plot_rl" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="thesis" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.14 (tester)" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/visualization" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visualization/plot_rl.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visualization/plot_swarm.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -203,7 +148,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="run_holographic_swarm" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="run_swarm" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="thesis" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -212,37 +157,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.14 (tester)" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/experiments/grand_challenge" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/grand_challenge/run_holographic_swarm.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="run_rl" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="thesis" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.14 (tester)" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/experiments" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/run_rl.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiments/run_swarm.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -274,53 +194,36 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration default="true" type="Tox" factoryName="Tox">
+    <configuration name="Python tests in test_qwen_thermodynamic.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="thesis" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="RUN_TOOL" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Doctests">
-      <module name="thesis" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/qwen/tests/test_qwen_thermodynamic.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.main" />
       <item itemvalue="Python.test_robustness" />
-      <item itemvalue="Python.run_holographic_swarm" />
-      <item itemvalue="Python.plot_rl" />
-      <item itemvalue="Python.noise_test" />
-      <item itemvalue="Python.run_rl" />
+      <item itemvalue="Python.plot_swarm" />
+      <item itemvalue="Python.run_swarm" />
+      <item itemvalue="Python tests.Python tests in test_qwen_thermodynamic.py" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.test_robustness" />
-        <item itemvalue="Python.run_holographic_swarm" />
-        <item itemvalue="Python.plot_rl" />
-        <item itemvalue="Python.run_rl" />
-        <item itemvalue="Python.noise_test" />
+        <item itemvalue="Python tests.Python tests in test_qwen_thermodynamic.py" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.plot_swarm" />
+        <item itemvalue="Python.run_swarm" />
       </list>
     </recent_temporary>
   </component>
@@ -347,22 +250,20 @@
       <option name="project" value="LOCAL" />
       <updated>1772882497926</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: prototype 2">
+      <option name="closed" value="true" />
+      <created>1772889591861</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772889591861</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: prototype" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: prototype" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/physics/experiments/sweep_barrier.py</url>
-          <line>57</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="feat: prototype 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: prototype 2" />
   </component>
 </project>
