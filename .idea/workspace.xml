@@ -4,22 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="fix: csv">
-      <change afterPath="$PROJECT_DIR$/agents/real_world/cortex_client.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/self_evolving_llm/evolving_llm_agent.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agents/self_evolving_llm/holographic_swarm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/autonomous_reasoning_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/reasoning_recovery_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/experiments/swarm_collaboration_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/qwen/experiments/train_toy_model.py" afterDir="false" />
+    <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="feat: more">
+      <change afterPath="$PROJECT_DIR$/experiments/maze_runner.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/maze_runner_heatmap_good.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/maze_runner_heatmap_good_2.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/SUMMARY.MD" beforeDir="false" afterPath="$PROJECT_DIR$/docs/SUMMARY.MD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qwen/experiments/compare_sampling.py" beforeDir="false" afterPath="$PROJECT_DIR$/qwen/experiments/compare_sampling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qwen/experiments/sampling_comparison.png" beforeDir="false" afterPath="$PROJECT_DIR$/qwen/experiments/sampling_comparison.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -270,7 +260,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773142847908</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="feat: more">
+      <option name="closed" value="true" />
+      <created>1773147030325</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1773147030325</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -278,6 +276,7 @@
     <MESSAGE value="feat: prototype 2" />
     <MESSAGE value="feat: prototype 3" />
     <MESSAGE value="fix: csv" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: csv" />
+    <MESSAGE value="feat: more" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: more" />
   </component>
 </project>

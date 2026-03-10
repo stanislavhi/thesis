@@ -76,3 +76,11 @@ Run `python physics/tests/test_bound.py` to computationally verify that $\sigma^
 ---
 
 *This framework suggests that AGI is not just a software problem, but a thermodynamic one. Intelligence is the efficiency with which a system navigates the trade-off between self-model accuracy and entropy production.*
+
+## 6. Gaps Toward AGI-like Behavior
+The gaps toward AGI-like behavior:
+1. Memory & Consolidation — the maze instability exposed this. Biological intelligence accumulates. You need something like a hippocampus — a mechanism to consolidate good solutions across runs rather than rediscovering from scratch each time.
+2. Hierarchical Goals — right now your agent optimizes one reward signal. AGI needs to decompose problems into subgoals autonomously. "Get to column 8, then navigate to row 8" rather than stumbling into it.
+3. World Model — your agent reacts to the environment but doesn't predict it. A learned internal model of "if I go right, I'll hit a wall" would dramatically accelerate maze solving and generalization.
+4. Transfer Learning — can the maze-solving agent apply anything to LunarLander? Right now each domain starts from zero. True intelligence reuses structure across problems.
+5. Curiosity as Intrinsic Reward — you're close with thermodynamic exploration, but formalizing novelty-seeking as an intrinsic drive (à la curiosity-driven RL) would tie everything together philosophically.
