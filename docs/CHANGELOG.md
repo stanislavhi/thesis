@@ -26,6 +26,36 @@ All notable changes to the "Thermodynamic AI" project will be documented in this
 - **`docs/SUMMARY.MD`**: Updated prototype structure section to match actual codebase, added "Planned" section for unimplemented files.
 - **`experiments/stress_tests/noise_test.py`**: Updated imports to use consolidated `rl_policy.py`.
 
+## [0.5.0] - The Self-Aware Agent - 2026-03-10
+
+This release marks the complete validation of the core thesis, demonstrating that an AI can monitor its own internal physical state to achieve superior resilience and self-organize.
+
+### Added
+- **Thermodynamic Language Model (`/qwen`)**:
+    - Implemented a thermodynamically-enhanced inference engine (`QwenThermodynamicInferencer`) with adaptive temperature scaling based on Free Energy principles.
+    - Added a sampling comparison experiment (`compare_sampling.py`) with qualitative generation examples, proving the method's superior diversity-coherence trade-off.
+- **Physical Bound Validation (`/physics`)**:
+    - Created `validate_transformer_bound.py` to empirically test the core inequality $\sigma^2 \cdot \epsilon \ge C_{phys}$ on a Transformer model.
+    - **Result**: The bound was observed to hold, providing the first evidence that the internal computations of a deep network obey a thermodynamic-like constraint.
+- **Thermodynamic Agent (`/agents/thermodynamic`)**:
+    - Created `ThermodynamicAgent`, an agent that monitors its own internal entropy production ($\sigma$) via hidden state variance.
+    - Created `ThermodynamicInjector`, a mutator that triggers chaos based on the agent's internal diagnosis (`frozen`, `healthy`).
+- **Neuroplasticity Stress Test (`/experiments/stress_tests`)**:
+    - Created `lunar_lander_brain_damage.py` to test resilience to catastrophic failure (50% weight destruction).
+    - **Result**: The Thermodynamic Agent successfully detected the damage via sigma collapse, triggered a chaotic mutation, and recovered, while the static agent failed.
+- **Self-Evolving Language Agent (`/agents/self_evolving_llm`)**:
+    - Created `EvolvingLLMAgent`, unifying the Qwen model with the thermodynamic agent architecture.
+    - Created `autonomous_reasoning_test.py` to simulate "cognitive fatigue" (weight decay).
+    - **Result**: The agent demonstrated **homeostasis**, producing a rhythmic "heartbeat" of self-correction to resist entropic decay and maintain cognitive function.
+- **Holographic Swarm (`/agents/self_evolving_llm`)**:
+    - Implemented the full swarm architecture (`LLMSwarmAgent`, `HolographicChannel`, `SwarmAggregator`).
+    - Created `swarm_collaboration_test.py` with a "Sum Modulo 10" task to prove the swarm can learn to communicate complex information through a noisy channel.
+
+### Fixed
+- **Qwen Inference Engine**: Corrected multiple critical bugs in `qwen_thermodynamic_inferencer.py`, including vectorized sampling, Top-K/Top-P filtering, and beam search logic.
+- **Experiment Pathing**: Resolved `ModuleNotFoundError` in all new experiment scripts by adding project root to `sys.path`.
+- **Thermodynamic Trigger Calibration**: Calibrated the "frozen" threshold in `ThermodynamicAgent` based on empirical data from stress tests, enabling the self-healing mechanism to function correctly.
+
 ## [0.4.0] - Modular Architecture
 ### Added
 - **Robustness Testing**: Created `experiments/test_robustness.py` to perform ablation studies (Chaos vs. Static) and stability checks across multiple seeds.

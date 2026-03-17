@@ -67,7 +67,7 @@ def train_swarm():
     optimizer = optim.Adam(params, lr=0.01)
     criterion = nn.MSELoss()
     
-    epochs = 100000
+    epochs = 1000
     loss_log = []
     
     print("Starting Swarm Evolution...", flush=True)
