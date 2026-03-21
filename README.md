@@ -1,23 +1,37 @@
-# Thermodynamic AI
+# 🔥 THESIS — Thermodynamic Heat via Structural Instability of Self-modeling Systems
 
-A falsifiable theory of self-reference, implemented as an AI architecture that evolves under thermodynamic constraints.
+A self-modifying AI architecture governed by a falsifiable thermodynamic bound.
 
 **Core claim**: Any physical system attempting complete self-modeling is thermodynamically forbidden from doing so. The bound **σ² · ε ≥ C_phys** is derived from first principles with no free parameters.
 
-## 📖 Theory
-Read the full derivation: **[docs/THEORY.md](docs/THEORY.md)** | **[docs/UNIFIED_THEORY.md](docs/UNIFIED_THEORY.md)**
+## ✨ Highlights
 
-Complete summary: **[docs/SUMMARY.MD](docs/SUMMARY.MD)**
+| Result | Description |
+|--------|-------------|
+| **20/20 Bound Validation** | σ²·ε ≥ C_phys holds across all coupling regimes |
+| **Blind Swarm Solves CartPole** | Two agents seeing only half the state learn to communicate |
+| **Transfer Shock Recovery** | Chaos agent scores 118.6 vs Static 10.8 after action swap |
+| **ARC-AGI Perfect Solve** | Swarm solver achieves 1.0 fitness on color mapping tasks |
+| **AGI Gauntlet** | 3-phase maze test: explore → sleep → transfer with world models |
+| **Thermodynamic Cortex** | LLM meta-controller that detects cognitive freeze via entropy |
+
+## 📖 Theory
+- Full derivation: **[docs/SUMMARY.MD](docs/SUMMARY.MD)**
+- Research write-up: **[docs/PAPER.md](docs/PAPER.md)**
+- Background: **[docs/THEORY.md](docs/THEORY.md)** | **[docs/UNIFIED_THEORY.md](docs/UNIFIED_THEORY.md)**
 
 ## 📂 Structure
 | Directory | Contents |
 |-----------|----------|
-| `core/` | Chaos engine, architecture monitor, cosmological scaler, ABCs |
-| `agents/` | Evolving RL policy, swarm agents, holographic channel |
-| `physics/` | Coupled ODE solver, entropy, KL divergence, substrate models |
-| `experiments/` | Swarm, RL, robustness, grand challenge, stress tests |
-| `visualization/` | Training plotters for swarm and RL |
-| `docs/` | Theory, roadmap, changelog, agent descriptions |
+| `core/` | Chaos engine (Lorenz), architecture monitor, ABCs |
+| `agents/` | RL policy, swarm, thermodynamic agent, holographic channel, cortex client |
+| `agi/` | AGI agent (memory, world model, hierarchy, curiosity) + gauntlet test |
+| `physics/` | Coupled ODE solver, entropy, KL, substrate models, transformer bound |
+| `experiments/` | RL, maze, stress tests, grand challenge, reasoning tests |
+| `arc/` | ARC-AGI program synthesis (DSL, evolver, hybrid, swarm, macros) |
+| `qwen/` | Thermodynamic Qwen LLM inference with adaptive temperature |
+| `dashboard/` | Interactive Streamlit dashboard (5 pages) |
+| `docs/` | Theory, paper, roadmap, changelog |
 
 ## 🚀 Quick Start
 
@@ -27,30 +41,45 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Run experiments
-python3 experiments/run_rl.py              # RL agent evolving on CartPole
-python3 experiments/run_swarm.py           # Multi-agent swarm simulation
+# Core experiments
+python3 experiments/run_rl.py                                      # RL agent (CartPole)
+python3 experiments/grand_challenge/run_holographic_swarm.py       # Blind swarm
+python3 experiments/maze_runner.py                                 # Maze navigation
 
-# Verify the thermodynamic bound
-python3 physics/tests/test_bound.py        # σ²·ε ≥ C_phys (should be VALID 20/20)
-python3 physics/tests/test_static_model.py # Static target convergence test
-python3 physics/tests/test_localization.py  # Localization limit test
+# Stress tests
+python3 experiments/stress_tests/noise_test.py            # Sensory noise resilience
+python3 experiments/stress_tests/brain_damage_test.py     # 50% weight destruction
+python3 experiments/stress_tests/transfer_shock_test.py   # Mid-training action swap
 
-# Physics experiments
-python3 physics/experiments/sweep_eta.py      # Cost of speed
-python3 physics/experiments/sweep_barrier.py   # Stability vs entropy
+# AGI gauntlet (explore → sleep → transfer)
+python3 agi/run_gauntlet.py
 
-# Robustness & stress tests
-python3 experiments/test_robustness.py                # Chaos vs Static ablation
-python3 experiments/stress_tests/noise_test.py        # Sensory noise resilience
-python3 experiments/grand_challenge/run_holographic_swarm.py  # Blind agents
+# Thermodynamic cortex (requires LM Studio running)
+python3 agents/real_world/cortex_client.py
 
-# Visualize results
-python3 visualization/plot_rl.py
-python3 visualization/plot_swarm.py
+# Physics verification
+python3 physics/tests/test_bound.py            # σ²·ε ≥ C_phys (VALID 20/20)
+
+# ARC-AGI solver (3 modes)
+python3 arc/solver.py --task 0d3d703e --generations 200   # Standard
+# Use dashboard for Hybrid / Swarm modes
+
+# Interactive dashboard
+cd dashboard && streamlit run app.py
 ```
 
 ## 🛠 Requirements
-See [requirements.txt](requirements.txt): Python 3.x, PyTorch, NumPy, SciPy, Matplotlib, Gymnasium, Pandas.
+See [requirements.txt](requirements.txt): Python 3.x, PyTorch, NumPy, SciPy, Matplotlib, Gymnasium, Pandas, Streamlit, Plotly.
 
-Full documentation: **[docs/README.md](docs/README.md)**
+> **Note**: LunarLander requires `gymnasium[box2d]` → Python ≤ 3.12. Cortex client requires `openai` + [LM Studio](https://lmstudio.ai/) running locally.
+
+## 📊 Dashboard
+
+Launch with `cd dashboard && streamlit run app.py`:
+- **📊 Experiment Replayer** — Load CSV logs, animated chart playback
+- **🔬 Physics Sandbox** — Interactive bound verification with sliders
+- **🌀 Lorenz Explorer** — 3D attractor colored by mutation strength
+- **🚀 Live Training** — Run experiments from the browser
+- **🧩 ARC-AGI Solver** — Visual grid puzzles + thermodynamic solver
+
+Full documentation: **[docs/README.md](docs/README.md)** | Changelog: **[docs/CHANGELOG.md](docs/CHANGELOG.md)**

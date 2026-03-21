@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Experiment: The AGI Gauntlet.
+Experiment: The AGI Gauntlet (Evolutionary Edition).
 
-Goal: Test the full Thermodynamic AGI architecture (Memory, World Model, Hierarchy, Curiosity).
+Goal: Test the full Thermodynamic AGI architecture using a robust Evolutionary Strategy.
 
 Phases:
-1. Exploration: Solve Maze A using Curiosity.
-2. Consolidation: Sleep and train the World Model on memories.
-3. Transfer: Solve Maze B (inverted). Does the World Model help?
+1. Exploration: Evolve a population to solve Maze A, rewarding curiosity.
+2. Consolidation: The elite agents from Phase 1 "sleep" to train their World Models.
+3. Transfer: Seed a new population with FRESH BRAINS but PRE-TRAINED WORLD MODELS.
+   This tests if knowing the physics helps learn a new path faster.
 """
 
 import sys
@@ -18,6 +19,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import matplotlib.pyplot as plt
 import copy
+import random
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
@@ -37,16 +39,14 @@ class GauntletMaze(gym.Env):
         self.goal_pos = np.array([8, 8])
         
         if layout_id == 1:
-            # Standard Trap (Wall at 4,4 blocking diagonal)
             self.layout[4:9, 4] = 1 
             self.layout[4, 4:9] = 1
-        else:
-            # Inverted Trap (Wall at 6,6 blocking from other side)
+        else: # Inverted layout
             self.layout[1:6, 6] = 1
             self.layout[6, 1:6] = 1
             
         self.agent_pos = self.start_pos.copy()
-        self.max_steps = 50
+        self.max_steps = 200
         self.current_step = 0
 
     def reset(self, seed=None, options=None):
@@ -71,110 +71,130 @@ class GauntletMaze(gym.Env):
         self.agent_pos = new_pos
         self.current_step += 1
         
+        dist = np.linalg.norm(self.agent_pos - self.goal_pos)
         done = np.array_equal(self.agent_pos, self.goal_pos)
+        
+        # Fitness is negative distance, with a big bonus for success
+        fitness = -dist
+        if done: fitness += 1000.0
+        
         truncated = self.current_step >= self.max_steps
         
-        # Sparse reward for the environment (Curiosity will be added by agent)
-        reward = 100.0 if done else -0.1
-        
-        return self._get_obs(), reward, done, truncated, {}
+        return self._get_obs(), fitness, done, truncated, {}
 
     def _get_obs(self):
         return self.agent_pos.astype(np.float32) / self.grid_size
 
-def run_phase(agent, env, episodes, phase_name, train_wm=False):
-    print(f"\n>>> PHASE: {phase_name} ({episodes} episodes)")
-    success_count = 0
-    rewards = []
+def evaluate_agent(agent, env):
+    """Run one episode, return total fitness and if successful."""
+    state, _ = env.reset()
+    total_fitness = 0
     
-    for ep in range(episodes):
-        state, _ = env.reset()
-        total_reward = 0
+    for step in range(env.max_steps):
+        action = agent.act(state)
+        next_state, fitness, done, truncated, _ = env.step(action)
         
-        while True:
-            action = agent.act(state)
-            next_state, env_reward, done, truncated, _ = env.step(action)
-            
-            # 1. Curiosity Reward (Intrinsic)
-            # If the world model is surprised, this is a good state to explore
-            curiosity = agent.get_intrinsic_reward(state, action, next_state)
-            
-            # Total Reward = External + Intrinsic
-            # We weight curiosity high initially to encourage exploration
-            combined_reward = env_reward + (curiosity * 5.0)
-            
-            # 2. Memory
-            agent.memory.remember(state, action, combined_reward, next_state, done)
-            
-            # 3. Update Brain (REINFORCE-style for simplicity here, or ES)
-            # For this gauntlet, we'll use a simple ES mutation if stuck
-            if agent.get_thermodynamic_status() == 'frozen':
-                agent.mutate()
-            
-            state = next_state
-            total_reward += env_reward # Track external performance
-            
-            if done or truncated:
-                break
+        # Curiosity as a fitness bonus
+        curiosity = agent.get_intrinsic_reward(state, action, next_state)
+        total_fitness += fitness + (curiosity * 0.1) # Weight curiosity
         
-        if done: success_count += 1
-        rewards.append(total_reward)
+        agent.memory.remember(state, action, fitness, next_state, done)
+        state = next_state
         
-        # 4. Sleep (Consolidation)
-        # Train World Model every 10 episodes
-        if train_wm and ep % 10 == 0:
-            loss = agent.sleep(epochs=5)
-            # print(f"   [Sleep] WM Loss: {loss:.4f}")
+        if done or truncated:
+            break
             
-    print(f"   Success Rate: {success_count/episodes:.1%}")
-    return rewards
+    return total_fitness, done
+
+def run_evolution_phase(population, env, generations, phase_name):
+    print(f"\n>>> PHASE: {phase_name} ({generations} generations)")
+    
+    population_size = len(population)
+    num_elites = 5
+    best_fitness_history = []
+
+    for gen in range(generations):
+        # Evaluate all agents
+        results = [evaluate_agent(agent, env) for agent in population]
+        fitnesses = [r[0] for r in results]
+        successes = [r[1] for r in results]
+        
+        sorted_indices = np.argsort(fitnesses)[::-1]
+        elites = [population[i] for i in sorted_indices[:num_elites]]
+        
+        best_fitness = fitnesses[sorted_indices[0]]
+        best_fitness_history.append(best_fitness)
+        
+        # Create next generation
+        next_population = [copy.deepcopy(elite) for elite in elites]
+        best_elite = elites[0]
+        
+        for _ in range(population_size - num_elites):
+            child = copy.deepcopy(best_elite)
+            child.mutate() # Use internal thermodynamic mutation
+            next_population.append(child)
+            
+        population = next_population
+        
+        if gen % 20 == 0:
+            success_rate = np.mean(successes)
+            print(f"   Gen {gen} | Best Fitness: {best_fitness:.2f} | Success Rate: {success_rate:.1%}")
+            
+    return population, best_fitness_history
 
 def run_gauntlet():
-    # 1. Initialize
-    agent = AGIAgent(input_dim=2, action_dim=4, hidden_dim=32)
-    
-    # 2. Phase 1: Maze A (Exploration & Learning Physics)
+    # --- Phase 1: Maze A (Exploration) ---
     env_a = GauntletMaze(layout_id=1)
-    rewards_a = run_phase(agent, env_a, episodes=200, phase_name="1. Exploration (Maze A)", train_wm=True)
+    initial_population = [AGIAgent(input_dim=2, action_dim=4, hidden_dim=32) for _ in range(20)]
+    trained_population, history_a = run_evolution_phase(initial_population, env_a, 100, "1. Exploration (Maze A)")
     
-    # 3. Phase 2: Deep Sleep (Consolidation)
+    # --- Phase 2: Deep Sleep (Consolidation) ---
     print("\n>>> PHASE: 2. Deep Sleep (Consolidation)")
-    print("   Agent is dreaming and refining its World Model...")
-    wm_loss = agent.sleep(epochs=100)
-    print(f"   Final World Model Loss: {wm_loss:.4f}")
+    results = [evaluate_agent(p, env_a) for p in trained_population]
+    elites_from_a = [trained_population[i] for i in np.argsort([r[0] for r in results])[::-1][:2]]
     
-    # 4. Phase 3: Maze B (Transfer)
-    # We compare the pre-trained agent vs a fresh agent
+    # Train the World Model of the best elite
+    best_elite = elites_from_a[0]
+    loss = best_elite.sleep(epochs=100)
+    print(f"   Elite trained World Model. Final Loss: {loss:.4f}")
+    
+    # --- Phase 3: Maze B (Transfer) ---
     env_b = GauntletMaze(layout_id=2)
     
-    # Clone for fair comparison (same architecture, fresh weights)
-    fresh_agent = AGIAgent(input_dim=2, action_dim=4, hidden_dim=32)
+    # Population 1: FRESH Brains + PRE-TRAINED World Model
+    # We clone the elite's world model into fresh agents
+    pretrained_population = []
+    for _ in range(20):
+        agent = AGIAgent(input_dim=2, action_dim=4, hidden_dim=32)
+        agent.world_model.load_state_dict(best_elite.world_model.state_dict()) # Transplant
+        pretrained_population.append(agent)
     
-    print("\n>>> PHASE: 3. Transfer Test (Maze B)")
-    print("   Comparing Pre-Trained Agent vs Fresh Agent...")
-    
-    rewards_b_pretrained = run_phase(agent, env_b, episodes=200, phase_name="Pre-Trained Agent", train_wm=True)
-    rewards_b_fresh = run_phase(fresh_agent, env_b, episodes=200, phase_name="Fresh Agent", train_wm=True)
+    # Population 2: FRESH Brains + FRESH World Model (Control)
+    fresh_population = [AGIAgent(input_dim=2, action_dim=4, hidden_dim=32) for _ in range(20)]
+
+    _, history_b_pretrained = run_evolution_phase(pretrained_population, env_b, 100, "3a. Transfer Test (Pre-Trained WM)")
+    _, history_b_fresh = run_evolution_phase(fresh_population, env_b, 100, "3b. Control Test (Fresh WM)")
     
     # Plotting
     plt.figure(figsize=(12, 6))
     
     # Smooth curves
-    def smooth(y, box_pts=20):
+    def smooth(y, box_pts=10):
         box = np.ones(box_pts)/box_pts
         y_smooth = np.convolve(y, box, mode='same')
         return y_smooth
 
-    plt.plot(smooth(rewards_b_pretrained), label='Pre-Trained (With World Model)', color='blue')
-    plt.plot(smooth(rewards_b_fresh), label='Fresh (No World Model)', color='red', linestyle='--')
-    
+    plt.plot(smooth(history_b_pretrained), label='Pre-Trained World Model', color='blue')
+    plt.plot(smooth(history_b_fresh), label='Fresh World Model', color='red', linestyle='--')
+
     plt.title("AGI Gauntlet: Transfer Learning via World Models")
-    plt.xlabel("Episode (Maze B)")
-    plt.ylabel("External Reward")
+    plt.xlabel("Generation (in Maze B)")
+    plt.ylabel("Best Fitness")
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../logs/agi_gauntlet.png'))
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                               '../logs/agi_gauntlet_good.png'))
     plt.savefig(output_file)
     print(f"\nPlot saved to {output_file}")
 

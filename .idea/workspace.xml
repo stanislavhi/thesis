@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="feat: more">
-      <change afterPath="$PROJECT_DIR$/experiments/maze_runner.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logs/maze_runner_heatmap_good.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logs/maze_runner_heatmap_good_2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agi/agent.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agi/components.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agi/run_gauntlet.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/thermodynamic/thermo_injector.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/thermodynamic/thermo_injector.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +19,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature/one" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -48,40 +55,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python tests.Python tests in test_qwen_thermodynamic.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.noise_test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.plot_rl.executor&quot;: &quot;Run&quot;,
-    &quot;Python.plot_swarm.executor&quot;: &quot;Run&quot;,
-    &quot;Python.rl_swarm.executor&quot;: &quot;Run&quot;,
-    &quot;Python.run_holographic_swarm.executor&quot;: &quot;Run&quot;,
-    &quot;Python.run_rl.executor&quot;: &quot;Run&quot;,
-    &quot;Python.run_swarm.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sweep_barrier.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sweep_eta.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_bound.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_localization.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_robustness.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_static_model.executor&quot;: &quot;Run&quot;,
-    &quot;Python.visualize.executor&quot;: &quot;Run&quot;,
-    &quot;Python.visualize_rl.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/one&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/stanislavhiznicenco/IdeaProjects/thesis&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.22336066&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python tests.Python tests in test_qwen_thermodynamic.py.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.noise_test.executor": "Run",
+    "Python.plot_rl.executor": "Run",
+    "Python.plot_swarm.executor": "Run",
+    "Python.rl_swarm.executor": "Run",
+    "Python.run_holographic_swarm.executor": "Run",
+    "Python.run_rl.executor": "Run",
+    "Python.run_swarm.executor": "Run",
+    "Python.sweep_barrier.executor": "Run",
+    "Python.sweep_eta.executor": "Run",
+    "Python.test.executor": "Run",
+    "Python.test_bound.executor": "Run",
+    "Python.test_localization.executor": "Run",
+    "Python.test_robustness.executor": "Run",
+    "Python.test_static_model.executor": "Run",
+    "Python.visualize.executor": "Run",
+    "Python.visualize_rl.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "git-widget-placeholder": "feature/two",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/stanislavhiznicenco/IdeaProjects/thesis",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.22336066"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -268,7 +275,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773147030325</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="feat: more">
+      <option name="closed" value="true" />
+      <created>1773167740624</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1773167740624</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

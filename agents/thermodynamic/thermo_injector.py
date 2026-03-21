@@ -23,23 +23,33 @@ class ThermodynamicInjector(Mutator):
         self.chaos_gen = chaos_generator
         self.base_rate = base_mutation_rate
         
-    def mutate(self, agent: EvolutionaryAgent) -> EvolutionaryAgent:
-        # 1. Diagnose the agent
-        status = agent.get_thermodynamic_status()
+    def mutate(self, agent: nn.Module, status: str = None) -> nn.Module:
+        """
+        Mutates the agent.
+        Args:
+            agent: The neural network to mutate.
+            status: Optional explicit status ('frozen', 'healthy'). 
+                    If None, calls agent.get_thermodynamic_status().
+        """
+        # 1. Diagnose the agent if status not provided
+        if status is None:
+            if hasattr(agent, 'get_thermodynamic_status'):
+                status = agent.get_thermodynamic_status()
+            else:
+                status = 'healthy' # Default if method missing
         
         # 2. Determine Chaos Magnitude based on diagnosis
         if status == 'frozen':
             # High chaos needed to escape local minimum
             magnitude = self.base_rate * 5.0 
-            print(f"   [Injector] Agent is FROZEN (low sigma). Injecting HIGH chaos ({magnitude:.2f}).")
+            # print(f"   [Injector] Agent is FROZEN. Injecting HIGH chaos ({magnitude:.2f}).")
         elif status == 'overheated':
             # Cooling needed - small negative perturbation or decay
             magnitude = self.base_rate * 0.5
-            print(f"   [Injector] Agent is OVERHEATED. Applying cooling ({magnitude:.2f}).")
+            # print(f"   [Injector] Agent is OVERHEATED. Applying cooling ({magnitude:.2f}).")
         else:
             # Healthy - standard drift
             magnitude = self.base_rate
-            # print(f"   [Injector] Agent is healthy. Standard drift.")
             
         # 3. Get Chaos Signal from Lorenz Attractor
         chaos_val = self.chaos_gen.get_perturbation()

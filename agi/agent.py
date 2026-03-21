@@ -104,7 +104,7 @@ class AGIAgent(EvolutionaryAgent):
             
             total_loss += loss.item()
             
-        return total_loss / epochs
+        return total_loss / epochs if epochs > 0 else 0.0
 
     def get_thermodynamic_status(self):
         if len(self.sigma_history) < 10: return 'healthy'
@@ -113,8 +113,13 @@ class AGIAgent(EvolutionaryAgent):
         return 'healthy'
 
     def mutate(self):
-        """Apply thermodynamic mutation to the BRAIN (not the world model)."""
-        self.brain = self.injector.mutate(self.brain)
+        """
+        Diagnose self, then apply thermodynamic mutation to the BRAIN.
+        """
+        status = self.get_thermodynamic_status()
+        if status == 'frozen':
+            # Pass the brain module to be mutated, but use the status of the AGIAgent
+            self.brain = self.injector.mutate(self.brain, status=status)
         return self
 
     def get_topology_info(self):

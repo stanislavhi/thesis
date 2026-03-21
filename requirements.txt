@@ -4,4 +4,6 @@ matplotlib
 torch
 gymnasium
 pandas
+streamlit
+plotly
 openai

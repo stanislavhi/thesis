@@ -84,3 +84,56 @@ The gaps toward AGI-like behavior:
 3. World Model — your agent reacts to the environment but doesn't predict it. A learned internal model of "if I go right, I'll hit a wall" would dramatically accelerate maze solving and generalization.
 4. Transfer Learning — can the maze-solving agent apply anything to LunarLander? Right now each domain starts from zero. True intelligence reuses structure across problems.
 5. Curiosity as Intrinsic Reward — you're close with thermodynamic exploration, but formalizing novelty-seeking as an intrinsic drive (à la curiosity-driven RL) would tie everything together philosophically.
+   1. Memory & Consolidation (The Hippocampus)
+   •
+   The Gap: The agent has no long-term memory. It re-discovers the maze solution on every run.
+   •
+   The Thermodynamic Solution: Consolidation is the process of cooling down high-entropy experiences into low-entropy, stable memories.
+   ◦
+   Mechanism: We can implement a MemoryArchive. After each successful run, the weights of the "elite" agent are not discarded; they are added to this archive.
+   ◦
+   The "Dream" State: Periodically, the agent can enter a "sleep" phase where it replays memories from the archive, fine-tuning its current policy against past successes. This is analogous to the hippocampus consolidating memories during sleep.
+   ◦
+   Next Step: Create a MemoryArchive class that saves and loads agent state dictionaries. The main training loop would be modified to seed the initial population with a mix of random agents and "memories" from the archive.
+2. Hierarchical Goals (The Frontal Lobe)
+   •
+   The Gap: The agent only optimizes for a single, monolithic reward signal.
+   •
+   The Thermodynamic Solution: A high-level goal (e.g., "solve the maze") is a state of very low entropy. An intelligent system will decompose this into a sequence of thermodynamically easier sub-goals that maximize the rate of free energy reduction.
+   ◦
+   Mechanism: We can add a "Goal Planner" module—another network that takes the overall goal and proposes a sub-goal (e.g., a waypoint in the maze).
+   ◦
+   The Agent's Job: The ThermodynamicAgent then uses its existing machinery to solve the much simpler problem of reaching the waypoint. The planner gets rewarded if the agent's sigma remains low (indicating the sub-goal was easy).
+   ◦
+   Next Step: Implement a simple GoalPlanner that breaks the maze task into "reach column 8" and then "reach row 8."
+3. World Model (The Parietal Lobe)
+   •
+   The Gap: The agent is reactive; it doesn't predict the consequences of its actions.
+   •
+   The Thermodynamic Solution: This is the heart of the Free Energy Principle. The agent's internal state is a predictive model of the world. The goal is to minimize the difference (KL divergence, epsilon) between its predictions and reality.
+   ◦
+   Mechanism: We can add a "Prediction Head" to the ThermodynamicAgent that, given (state, action), predicts the next_state.
+   ◦
+   The Fitness Function: The agent's fitness can be modified to be fitness = -dist + (prediction_accuracy). This explicitly rewards agents that build better internal world models.
+   ◦
+   Next Step: Add a simple prediction head and a term for prediction error in the evaluate function of the maze runner.
+4. Transfer Learning (Abstract Reasoning)
+   •
+   The Gap: The maze-solving skill doesn't transfer to LunarLander.
+   •
+   The Thermodynamic Solution: A learned skill is a stable, low-entropy "attractor" in the weight space. Transfer learning is the art of controlled phase transition: "heating up" a learned skill just enough to make it flexible, then "cooling it down" into a new, related skill.
+   ◦
+   Mechanism: Take the best agent from the Maze Runner experiment. Instead of initializing a new LunarLander agent from scratch, initialize it with the maze-runner's weights. Then, apply a single, large chaotic mutation at the very beginning of training.
+   ◦
+   Hypothesis: This "warming up" of the weights will be far more efficient than a cold start, as the agent already has a learned concept of "navigation" and "goals."
+   ◦
+   Next Step: Create a new experiment, transfer_learning_test.py, that implements this exact protocol.
+5. Curiosity as Intrinsic Reward (The Drive to Live)
+   •
+   The Gap: Our thermodynamic reward is a good proxy, but not formalized.
+   •
+   The Thermodynamic Solution: You are right, this is the philosophical glue. A living system doesn't just want to reach a goal; it wants to continue existing. The drive to continue existing is the drive to maintain a low-entropy internal state in a high-entropy world. This requires a constant intake of new information (novelty).
+   ◦
+   Mechanism: We can formalize the intrinsic reward. Instead of just reward += agent.current_sigma, we can use reward += KL_divergence(current_policy || average_policy). This explicitly rewards the agent for doing something different from its own recent habits.
+   ◦
+   Next Step: This is a simple change to the reward function in maze_runner.py that would make the connection to curiosity-driven RL explicit.

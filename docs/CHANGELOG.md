@@ -2,7 +2,49 @@
 
 All notable changes to the "Thermodynamic AI" project will be documented in this file.
 
-## [Unreleased] - Current State
+## [0.6.0] - New Experiments, AGI Architecture & ARC-AGI Engine - 2026-03-21
+
+### Added — ARC-AGI Program Synthesis (`arc/`)
+- `dsl.py` — **21 grid primitives**: geometric, color, structural, and spatial ops (flood fill, gravity, border, hollow, largest object)
+- `evolver.py` — Thermodynamic program evolution with Lorenz chaos mutations
+- `hybrid_solver.py` — **GridAnalyzer** detects task patterns (color swaps, symmetry, tiling) → biases search
+- `swarm_solver.py` — **3 specialist evolvers** (color/spatial/geometric) share candidates through noisy channel
+- `macros.py` — Self-inventing primitives: extracts common subsequences as new DSL ops
+- `solver.py` / `data.py` — CLI solver + GitHub dataset downloader
+
+### Added — AGI Architecture (`agi/`)
+- `AGIAgent` — Integrates Hippocampus (memory), WorldModel (curiosity), HierarchicalController (manager→worker), ThermodynamicInjector
+- `run_gauntlet.py` — 3-phase maze test: Exploration → Sleep Consolidation → Transfer Learning
+- `components.py` — Hippocampus replay buffer, WorldModel (prediction error = curiosity), HierarchicalController (feudal RL)
+
+### Added — Thermodynamic Cortex & Agents
+- `agents/real_world/cortex_client.py` — LLM meta-controller: monitors output entropy via LM Studio, injects chaos prompts on cognitive freeze
+- `agents/thermodynamic/thermo_agent.py` — Self-monitoring agent with sigma-based freeze/overheat detection
+- `agents/thermodynamic/thermo_injector.py` — Chaos injection driven by agent self-diagnosis
+- `agents/self_evolving_llm/` — EvolvingLLMAgent + HolographicSwarm for language agents
+
+### Added — Qwen Integration (`qwen/`)
+- Thermodynamic Qwen inference engine with adaptive temperature scaling
+- Sampling comparison experiments, training visualization
+- Thermodynamic monitor utilities
+
+### Added — Experiments & Dashboard
+- **Transfer Shock** — Chaos=**118.6** vs Static=**10.8** after action swap
+- **Brain Damage Test** — 50% weight destruction across 5 seeds
+- **Maze Runner** — Grid maze environment for spatial reasoning
+- **Interactive Dashboard** — 5 Streamlit pages (Replayer, Physics, Lorenz, Live Training, ARC Solver with 3 modes)
+- **Configurable RL** — CLI args with environment presets
+
+### Fixed
+- `Program.copy()` now preserves fitness
+- `ProgramEvolver` constructor compatibility with `LorenzGenerator`
+
+### Key Results
+- **ARC Swarm**: **Perfect 1.0** on color mapping task (0d3d703e)
+- **Transfer Shock**: Chaos=**118.6** vs Static=**10.8**
+- **Blind Swarm**: Two agents solved CartPole (avg 204)
+
+## [Unreleased] - Codebase Audit
 
 ### Fixed
 - **Lorenz Equation Bug**: Fixed `dz = x*z - β*z` → `dz = x*y - β*z` in `core/chaos.py`. The chaos engine was producing an incorrect attractor.
