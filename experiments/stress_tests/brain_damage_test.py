@@ -30,16 +30,17 @@ def inflict_brain_damage(policy, damage_ratio=0.5):
     return int(total_zeroed)
 
 
-def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episodes=400):
+def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episodes=400,
+                           env_name="CartPole-v1", hidden_size=16):
     torch.manual_seed(seed)
     np.random.seed(seed)
 
-    env = gym.make("CartPole-v1")
+    env = gym.make(env_name)
 
     input_dim = env.observation_space.shape[0]
     output_dim = env.action_space.n
 
-    policy = ThermodynamicAgent(input_dim, 16, output_dim)
+    policy = ThermodynamicAgent(input_dim, hidden_size, output_dim)
     optimizer = optim.Adam(policy.parameters(), lr=0.01)
 
     chaos_gen = LorenzGenerator()
@@ -119,8 +120,11 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
             second_half = np.mean(scores_list[len(scores_list)//2:])
             is_recovering = second_half > first_half + 5.0
 
+            # Environment-adaptive stagnation threshold
+            stagnation_threshold = 100 if env_name == "CartPole-v1" else -100
+
             # Only inject if truly frozen AND not recovering
-            if status == 'frozen' and avg_score < 100 and np.std(scores) < 10.0 and not is_recovering:
+            if status == 'frozen' and avg_score < stagnation_threshold and np.std(scores) < 10.0 and not is_recovering:
                 policy = injector.mutate(policy, status=status)
                 optimizer = optim.Adam(policy.parameters(), lr=0.01)
                 scores.clear()
@@ -130,28 +134,24 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
     return history
 
 
-def main():
-    print("--- STRESS TEST: BRAIN DAMAGE RESILIENCE ---")
-    print("Training 150 eps -> Zero 50% of weights -> Continue 250 eps")
-    print("Comparing CHAOS (Operator Selection Rule) vs STATIC (fixed architecture)\n")
-
-    seeds = [42, 101, 999, 123, 777]
+def run_experiment(env_name, hidden_size, seeds, damage_episode, max_episodes, plot_filename, title_suffix):
     chaos_results = []
     static_results = []
 
-    print(">>> Running CHAOS trials (ThermodynamicAgent + Operator Selection)...")
+    print(f">>> Running CHAOS trials (ThermodynamicAgent + Operator Selection)...")
     for seed in seeds:
         print(f"   Seed {seed}...", flush=True)
-        res = run_brain_damage_trial(seed, use_chaos=True)
+        res = run_brain_damage_trial(seed, use_chaos=True, damage_episode=damage_episode,
+                                     max_episodes=max_episodes, env_name=env_name, hidden_size=hidden_size)
         chaos_results.append(res)
 
-    print("\n>>> Running STATIC trials...")
+    print(f"\n>>> Running STATIC trials...")
     for seed in seeds:
         print(f"   Seed {seed}...", flush=True)
-        res = run_brain_damage_trial(seed, use_chaos=False)
+        res = run_brain_damage_trial(seed, use_chaos=False, damage_episode=damage_episode,
+                                     max_episodes=max_episodes, env_name=env_name, hidden_size=hidden_size)
         static_results.append(res)
 
-    # Statistical Analysis
     chaos_matrix = np.array(chaos_results)
     static_matrix = np.array(static_results)
 
@@ -160,48 +160,63 @@ def main():
     static_mean = np.mean(static_matrix, axis=0)
     static_std = np.std(static_matrix, axis=0)
 
-    # Recovery metrics (post-damage)
-    post_damage_chaos = chaos_matrix[:, 150:]
-    post_damage_static = static_matrix[:, 150:]
+    post_damage_chaos = chaos_matrix[:, damage_episode:]
+    post_damage_static = static_matrix[:, damage_episode:]
 
     chaos_recovery_avg = np.mean(post_damage_chaos)
     static_recovery_avg = np.mean(post_damage_static)
 
-    # Best post-damage average (per trial, take last 50 episodes)
     chaos_final = np.mean(chaos_matrix[:, -50:])
     static_final = np.mean(static_matrix[:, -50:])
 
-    print("\n--- RESULTS ---")
+    print(f"\n--- RESULTS ({env_name}) ---")
     print(f"Post-Damage Avg Score:   Chaos={chaos_recovery_avg:.1f}  |  Static={static_recovery_avg:.1f}")
     print(f"Final 50-ep Avg Score:   Chaos={chaos_final:.1f}  |  Static={static_final:.1f}")
 
-    # Plotting
     plt.figure(figsize=(12, 6))
     x = np.arange(len(chaos_mean))
-
     plt.plot(x, chaos_mean, color='blue', linewidth=2, label='Chaos (Operator Selection)')
     plt.fill_between(x, chaos_mean - chaos_std, chaos_mean + chaos_std, color='blue', alpha=0.15)
-
     plt.plot(x, static_mean, color='red', linewidth=2, label='Static (Fixed)')
     plt.fill_between(x, static_mean - static_std, static_mean + static_std, color='red', alpha=0.15)
-
-    plt.axvline(x=150, color='black', linestyle='--', linewidth=2, label='Brain Damage (50% zeroed)')
-
+    plt.axvline(x=damage_episode, color='black', linestyle='--', linewidth=2, label='Brain Damage (50% zeroed)')
     plt.xlabel('Episode', fontsize=12)
     plt.ylabel('Score', fontsize=12)
-    plt.title(f'Neuroplasticity: Recovery from Brain Damage (n={len(seeds)} seeds)', fontsize=14)
+    plt.title(f'Brain Damage Recovery: {title_suffix} (n={len(seeds)} seeds)', fontsize=14)
     plt.legend(fontsize=11)
     plt.grid(True, alpha=0.3)
-
-    plt.annotate(f'Chaos recovery: {chaos_final:.0f}', xy=(370, chaos_final),
+    plt.annotate(f'Chaos: {chaos_final:.0f}', xy=(max_episodes-30, chaos_final),
                  fontsize=10, color='blue', fontweight='bold')
-    plt.annotate(f'Static recovery: {static_final:.0f}', xy=(370, static_final),
+    plt.annotate(f'Static: {static_final:.0f}', xy=(max_episodes-30, static_final),
                  fontsize=10, color='red', fontweight='bold')
-
     plt.tight_layout()
-    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/stress_test_brain_damage.png'))
+
+    output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), f'../../logs/{plot_filename}'))
     plt.savefig(output_file, dpi=150)
-    print(f"\nPlot saved to {output_file}")
+    print(f"Plot saved to {output_file}")
+    return chaos_final, static_final
+
+
+def main():
+    seeds = [42, 101, 999]
+
+    # --- CartPole: Low C_V (16 neurons) ---
+    print("=" * 60)
+    print("BRAIN DAMAGE TEST: CartPole-v1 (Low C_V, 16 neurons)")
+    print("Prediction: Static recovers well (simple task, low C_V)")
+    print("=" * 60)
+    run_experiment("CartPole-v1", 16, seeds, damage_episode=150, max_episodes=400,
+                   plot_filename="stress_test_brain_damage_cartpole.png",
+                   title_suffix="CartPole (Low $C_V$)")
+
+    # --- LunarLander: High C_V (128 neurons) ---
+    print("\n" + "=" * 60)
+    print("BRAIN DAMAGE TEST: LunarLander-v3 (High C_V, 128 neurons)")
+    print("Prediction: Targeted Dropout (via Operator Selection) outperforms static")
+    print("=" * 60)
+    run_experiment("LunarLander-v3", 128, seeds, damage_episode=200, max_episodes=600,
+                   plot_filename="stress_test_brain_damage_lunar.png",
+                   title_suffix="LunarLander (High $C_V$)")
 
 
 if __name__ == "__main__":

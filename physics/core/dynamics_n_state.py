@@ -141,13 +141,18 @@ def verify_n2_equivalence():
     t_short = np.linspace(0, 5, 5000)
 
     # --- N=2 equivalence: KL trajectory comparison ---
+    # The simplex projection for N=2 halves the effective gradient:
+    #   projected_grad[0] = (g1 - g2)/2, whereas scalar uses g1 - g2.
+    # To get exact equivalence, scale eta by 2 for the N-state model.
+    eta_nstate = eta * 2
+
     print("--- N=2 EQUIVALENCE CHECK ---")
     model_2state = CoupledDynamics(eta, alpha, temperature=0.0)
     traj_2state = model_2state.simulate(q0_scalar, p0_scalar, t_short)
 
     q0_vec = np.array([q0_scalar, 1 - q0_scalar])
     p0_vec = np.array([p0_scalar, 1 - p0_scalar])
-    model_nstate = CoupledDynamicsNState.from_scalar_alpha(2, eta, alpha, temperature=0.0)
+    model_nstate = CoupledDynamicsNState.from_scalar_alpha(2, eta_nstate, alpha, temperature=0.0)
     q_traj, p_traj = model_nstate.simulate(q0_vec, p0_vec, t_short)
 
     eps = 1e-12
