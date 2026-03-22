@@ -197,12 +197,12 @@ In Phenomenology, this structural mismatch is the Hard Problem. The physical imp
 
 \section{Corroborating Evidence}
 
-The inequality $\sigma^2 \cdot \epsilon \ge C_{phys}$ was validated numerically using a Milstein integrator for the coupled stochastic differential equations, with entropy production computed via the Schnakenberg formula \citep{schnakenberg1976}. State-dependent diffusion $\sigma(p) = \sqrt{2T \cdot p(1-p)}$ ensures physically correct noise that vanishes at probability boundaries. Across 12 tested parameter regimes where deterministic coupling dominates thermal noise ($\alpha_{coup} \in [0.024, 0.607]$), the bound holds in 10 regimes. The two marginal violations occur at the thermal boundary where noise begins to dominate the drift term.
+The inequality $\sigma^2 \cdot \epsilon \ge C_{phys}$ was validated numerically using a Milstein integrator for the coupled stochastic differential equations, with entropy production computed via the Schnakenberg formula \citep{schnakenberg1976}. State-dependent diffusion $\sigma(p) = \sqrt{2T \cdot p(1-p)}$ ensures physically correct noise that vanishes at probability boundaries. Across 12 tested parameter regimes where deterministic coupling dominates thermal noise ($\alpha_{coup} \in [0.024, 0.607]$), the bound holds in 10 regimes. The two marginal violations occur near the thermal boundary where the noise-to-drift ratio approaches unity, consistent with the theory's prediction that the bound degenerates when thermal fluctuations dominate deterministic coupling. The two marginal violations occur at the thermal boundary where noise begins to dominate the drift term.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\textwidth]{thermodynamic_bound_validation.png}
-\caption{Numerical validation of the thermodynamic bound $\sigma^2 \cdot \epsilon \ge C_{phys}$ across temperature regimes. The bound holds wherever deterministic coupling dominates thermal noise.}
+\caption{Numerical validation of the thermodynamic bound $\sigma^2 \cdot \epsilon$ across transformer layers. The bound holds consistently with depth.}
 \label{fig:bound}
 \end{figure}
 
