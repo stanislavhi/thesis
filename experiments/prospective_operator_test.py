@@ -223,22 +223,26 @@ def main():
         box = np.ones(box_pts)/box_pts
         return np.convolve(y, box, mode='valid')
 
-    colors = {"static": "red", "additive": "blue", "dropout": "green"}
+    styles = {
+        "static":   {"color": "red",   "linestyle": "--", "linewidth": 2.5, "alpha": 0.9},
+        "additive": {"color": "blue",  "linestyle": "-",  "linewidth": 2.5, "alpha": 0.9},
+        "dropout":  {"color": "green", "linestyle": ":",  "linewidth": 2.5, "alpha": 0.9},
+    }
     labels = {
         "static": "Static (Baseline)",
         "additive": "Additive Noise (Predicted to Succeed)",
         "dropout": "Targeted Dropout (Predicted to Fail)"
     }
-    
+
     for strategy, results in strategies.items():
-        if not results: continue 
-        
+        if not results: continue
+
         min_len = min(len(r) for r in results)
         truncated_results = [r[:min_len] for r in results]
-        
+
         mean_res = np.mean(truncated_results, axis=0)
-        
-        plt.plot(smooth(mean_res), color=colors[strategy], linewidth=2, label=labels[strategy], alpha=0.8)
+
+        plt.plot(smooth(mean_res), label=labels[strategy], **styles[strategy])
 
     plt.axvline(x=250, color='black', linestyle=':', linewidth=2, label='Environment Shift (Actions Inverted)')
 
