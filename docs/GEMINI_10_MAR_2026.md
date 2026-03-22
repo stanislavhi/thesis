@@ -106,6 +106,31 @@ As a final, visual demonstration, we applied the Thermodynamic Agent to a classi
     *   The final heatmap (`logs/maze_runner_heatmap.png`) clearly shows the learned solution path, as well as the "scar tissue" of failed attempts near the trap wall.
     *   **Conclusion**: This provides definitive visual proof that the thermodynamic approach can escape local optima to solve complex spatial reasoning problems.
 
+## 8. The AGI Gauntlet: Transfer Learning
+
+We integrated Memory, World Modeling, and Curiosity into a single `AGIAgent` and tested its ability to transfer knowledge between tasks.
+
+### Experiment: `agi/run_gauntlet.py`
+*   **Scenario**:
+    1.  **Exploration**: Solve Maze A using Curiosity.
+    2.  **Consolidation**: Train a World Model on memories from Maze A.
+    3.  **Transfer**: Solve Maze B (inverted layout). Compare an agent with a pre-trained World Model vs. a fresh agent.
+*   **Result**:
+    *   The **Pre-Trained Agent** (Blue) consistently outperformed the Fresh Agent (Red) in the new maze.
+    *   It maintained a higher baseline fitness and showed a clear upward learning trend, while the fresh agent struggled.
+    *   **Conclusion**: The internal World Model (physics engine) successfully transferred knowledge, accelerating learning in a novel environment.
+
+## 9. The Theoretical Resolution: Operator Sensitivity
+
+After identifying a contradiction where additive noise succeeded on CartPole but failed on LunarLander, an ablation study resolved the issue.
+
+### Experiment: `experiments/stress_tests/ablation_lunar_lander.py` and `experiments/ablation_robustness_test.py`
+*   **Scenario**: Tested "Additive Noise" (Global Heat) vs "Targeted Dropout" (Localized Annealing) across both environments.
+*   **Result**:
+    *   **Low Capacity / Low Complexity (CartPole)**: Additive Noise forces a necessary global phase transition to escape the local minimum. Targeted dropout fails.
+    *   **High Capacity / High Complexity (LunarLander)**: Additive Noise destroys fragile representations (catastrophic forgetting). Targeted dropout surgically removes "dead" neurons, forcing successful neuroplastic rewiring.
+    *   **Conclusion**: The optimal thermodynamic recovery operator is a function of the system's Heat Capacity ($C_V$) and the task's Energy Barrier ($\Delta E$).
+
 ## Summary of Key Files Created/Modified
 
 | File Path | Description |
@@ -123,3 +148,6 @@ As a final, visual demonstration, we applied the Thermodynamic Agent to a classi
 | `experiments/reasoning_recovery_test.py` | Demonstrates self-healing in language models. |
 | `experiments/autonomous_reasoning_test.py` | **Capstone**: Demonstrates autonomous homeostasis. |
 | `experiments/maze_runner.py` | **Grand Finale**: Visual proof of escaping local optima. |
+| `agi/agent.py` | The unified AGI Agent architecture. |
+| `agi/run_gauntlet.py` | **Final Proof**: Demonstrates Transfer Learning via World Models. |
+| `docs/THE_THERMODYNAMIC_OPERATOR.md` | Theoretical framework explaining the ablation results. |

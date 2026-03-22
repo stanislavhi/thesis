@@ -23,25 +23,27 @@ def sweep_barrier():
     
     T = 0.5
     eta = 0.1
+    fixed_alpha = 1.0 
     
-    t = np.linspace(0, 50, 500)
+    # Extended simulation time to 250
+    t = np.linspace(0, 250, 2500)
     dt = t[1] - t[0]
     
     for b in barriers:
         # Construct potential with desired barrier
-        # Barrier = b^2 / 4a. Let a=1, so Barrier = b^2/4 => b = sqrt(4*Barrier)
         param_b = np.sqrt(4 * b)
         potential = DoubleWellPotential(a=1.0, b=param_b)
         
-        # Calculate k_escape to estimate alpha scaling
-        # We assume alpha scales with k_escape for this experiment
         k_escape = calculate_kramers_rate(b, T)
-        alpha = k_escape * 10.0 # Heuristic scaling
         
-        model = CoupledDynamics(eta, alpha, temperature=T)
+        model = CoupledDynamics(eta, fixed_alpha, temperature=T)
         traj = model.simulate(0.2, 0.8, t)
         
-        sigma = calculate_entropy_production(traj, dt)
+        # Take steady-state average over last 50% of trajectory
+        half_idx = len(traj) // 2
+        active_traj = traj[half_idx:]
+        
+        sigma = calculate_entropy_production(active_traj, dt, eta, T)
         sigmas.append(sigma)
         
         print(f"Barrier: {b:.2f} | k_escape: {k_escape:.4f} | Sigma: {sigma:.4f}")
@@ -50,7 +52,7 @@ def sweep_barrier():
     plt.plot(barriers, sigmas, 'g-o')
     plt.xlabel('Barrier Height (Delta E)')
     plt.ylabel('Entropy Production (Sigma)')
-    plt.title('Stability vs Entropy')
+    plt.title(f'Stability vs Entropy (Fixed Alpha={fixed_alpha})')
     plt.grid(True)
     output_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/experiment_sweep_barrier.png'))
     plt.savefig(output_file)
