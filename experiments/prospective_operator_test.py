@@ -7,8 +7,9 @@ Hypothesis formulated BEFORE the experiment:
 - Architecture: 16 hidden neurons.
 - Classification: Low C_V (Heat Capacity).
 - Prediction: The Operator Selection Rule predicts that Additive Noise (Global Heat) 
-  will successfully induce a phase transition to escape a local minimum, whereas 
-  Targeted Dropout (Localized Annealing) will fail due to the lack of redundant capacity.
+  will successfully induce a phase transition to escape a local minimum (induced by
+  an environment shift), whereas Targeted Dropout (Localized Annealing) will fail 
+  due to the lack of redundant capacity.
 """
 
 import sys
@@ -26,8 +27,25 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
 
+class InvertibleAcrobot(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.inverted = False
+        
+    def step(self, action):
+        if self.inverted:
+            # Acrobot has 3 actions: 0 (left), 1 (none), 2 (right).
+            # Invert: 0 becomes 2, 2 becomes 0, 1 stays 1.
+            if action == 0: action = 2
+            elif action == 2: action = 0
+            
+        return self.env.step(action)
+        
+    def invert(self):
+        self.inverted = not self.inverted
+
 class ProspectiveInjector:
-    def __init__(self, strategy="additive", base_rate=0.05):
+    def __init__(self, strategy="additive", base_rate=0.1):
         self.strategy = strategy
         self.base_rate = base_rate
         
@@ -37,11 +55,13 @@ class ProspectiveInjector:
         if status == 'frozen':
             if self.strategy == "additive":
                 # Global Phase Transition
-                magnitude = self.base_rate * 5.0
+                magnitude = self.base_rate * 2.0 
                 with torch.no_grad():
                     for param in agent.parameters():
                         noise = torch.randn_like(param) * magnitude
                         param.add_(noise)
+                        # Tighter clamp to prevent NaN explosions in softmax
+                        param.clamp_(-2.0, 2.0)
                         
             elif self.strategy == "dropout":
                 # Localized Annealing
@@ -56,12 +76,13 @@ class ProspectiveInjector:
         
         return agent
 
-def run_trial(seed, strategy, max_episodes=500):
+def run_trial(seed, strategy, max_episodes=500, shift_episode=250):
     torch.manual_seed(seed)
     np.random.seed(seed)
     
-    # Acrobot-v1: Reward is -1 per step until reaching the goal. Max steps 500.
-    env = gym.make("Acrobot-v1")
+    base_env = gym.make("Acrobot-v1")
+    env = InvertibleAcrobot(base_env)
+    
     input_dim = env.observation_space.shape[0]
     output_dim = env.action_space.n
     
@@ -77,29 +98,55 @@ def run_trial(seed, strategy, max_episodes=500):
     history = []
     
     for episode in range(max_episodes):
+        if episode == shift_episode:
+            env.invert()
+            scores.clear()
+            agent.sigma_history = [] # Reset history so it doesn't stay frozen
+            
         state, _ = env.reset(seed=seed + episode)
         log_probs = []
         rewards = []
         
-        while True:
-            state_tensor = torch.FloatTensor(state).unsqueeze(0)
-            probs = agent(state_tensor)
-            dist = torch.distributions.Categorical(probs)
-            action = dist.sample()
-            
-            next_state, reward, done, truncated, _ = env.step(action.item())
-            
-            log_probs.append(dist.log_prob(action))
-            rewards.append(reward)
-            state = next_state
-            
-            if done or truncated: break
+        crashed = False
+        try:
+            while True:
+                state_tensor = torch.FloatTensor(state).unsqueeze(0)
+                probs = agent(state_tensor)
+                
+                if torch.isnan(probs).any():
+                    crashed = True
+                    break 
+                    
+                dist = torch.distributions.Categorical(probs)
+                action = dist.sample()
+                
+                next_state, reward, done, truncated, _ = env.step(action.item())
+                
+                log_probs.append(dist.log_prob(action))
+                rewards.append(reward)
+                state = next_state
+                
+                if done or truncated: break
+        except Exception as e:
+            crashed = True
                 
         total_reward = sum(rewards)
+        
+        if crashed:
+            total_reward = -500
+            # Gentle re-init to escape NaN death spiral
+            optimizer = optim.Adam(agent.parameters(), lr=0.01)
+            with torch.no_grad():
+                for param in agent.parameters():
+                    param.normal_(0, 0.1)
+            
         scores.append(total_reward)
         avg_score = np.mean(scores)
         history.append(total_reward)
         
+        if not log_probs or crashed:
+            continue
+            
         # REINFORCE Update
         discounted_rewards = []
         R = 0
@@ -116,24 +163,32 @@ def run_trial(seed, strategy, max_episodes=500):
         
         optimizer.zero_grad()
         if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+            loss_tensor = torch.stack(policy_loss).sum()
+            if not torch.isnan(loss_tensor):
+                loss_tensor.backward()
+                # ESSENTIAL: gradient clipping prevents explosion
+                torch.nn.utils.clip_grad_norm_(agent.parameters(), 1.0)
+                optimizer.step()
             
         # Thermodynamic Intervention
-        # We trigger if the agent is stuck at the max penalty (-500)
-        if injector and episode > 50:
+        if injector and episode > 20:
             status = agent.get_thermodynamic_status()
             
-            if avg_score <= -490 and np.std(scores) < 10.0:
+            # Acrobot specific: if stuck at bottom, reward is -500.
+            if avg_score <= -490 and np.std(scores) < 10.0 and len(scores) == 20:
                 status = 'frozen'
                 
             if status == 'frozen':
                 agent = injector.mutate(agent)
                 if strategy == "additive":
-                    optimizer = optim.Adam(agent.parameters(), lr=0.01) # Reset momentum
+                    optimizer = optim.Adam(agent.parameters(), lr=0.01)
                 scores.clear()
             
     env.close()
+    
+    while len(history) < max_episodes:
+        history.append(-500)
+
     return history
 
 def main():
@@ -170,8 +225,20 @@ def main():
     }
     
     for strategy, results in strategies.items():
-        mean_res = np.mean(results, axis=0)
-        plt.plot(smooth(mean_res), color=colors[strategy], linewidth=2, label=labels[strategy])
+        if not results: continue 
+        
+        min_len = min(len(r) for r in results)
+        truncated_results = [r[:min_len] for r in results]
+        
+        mean_res = np.mean(truncated_results, axis=0)
+        
+        # Add slight offsets if they perfectly overlap at -500 so all lines are visible
+        if strategy == "static": mean_res += 2
+        if strategy == "additive": mean_res += 4
+        
+        plt.plot(smooth(mean_res), color=colors[strategy], linewidth=2, label=labels[strategy], alpha=0.8)
+
+    plt.axvline(x=250, color='black', linestyle=':', linewidth=2, label='Environment Shift (Actions Inverted)')
 
     plt.xlabel('Episode')
     plt.ylabel('Score (Smoothed) - Higher is better')

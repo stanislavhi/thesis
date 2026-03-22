@@ -291,6 +291,108 @@ def invert_colors(grid: np.ndarray, max_color: int = 9) -> np.ndarray:
 
 
 # ============================================================
+# High-Level Pattern Operations
+# ============================================================
+
+def split_on_separator_v(grid: np.ndarray, sep_color: int) -> np.ndarray:
+    """Split grid at a vertical separator column and return the LEFT half."""
+    h, w = grid.shape
+    for c in range(w):
+        if np.all(grid[:, c] == sep_color):
+            return grid[:, :c]
+    return grid
+
+
+def split_on_separator_h(grid: np.ndarray, sep_color: int) -> np.ndarray:
+    """Split grid at a horizontal separator row and return the TOP half."""
+    h, w = grid.shape
+    for r in range(h):
+        if np.all(grid[r, :] == sep_color):
+            return grid[:r, :]
+    return grid
+
+
+def overlay_intersect(grid: np.ndarray, output_color: int = 2) -> np.ndarray:
+    """
+    Split grid at vertical separator, AND the two halves.
+    Where both halves have non-zero → output_color, else 0.
+    Handles the common ARC pattern: left|sep|right → intersection.
+    """
+    h, w = grid.shape
+    sep_col = -1
+    for c in range(w):
+        col = grid[:, c]
+        if len(np.unique(col)) == 1 and col[0] != 0:
+            sep_col = c
+            break
+    if sep_col < 0:
+        return grid
+
+    left = grid[:, :sep_col]
+    right = grid[:, sep_col + 1:]
+    # Make same size
+    min_w = min(left.shape[1], right.shape[1])
+    left = left[:, :min_w]
+    right = right[:, :min_w]
+
+    result = np.zeros((h, min_w), dtype=grid.dtype)
+    overlap = (left != 0) & (right != 0)
+    result[overlap] = output_color
+    return result
+
+
+def extend_pattern_v(grid: np.ndarray) -> np.ndarray:
+    """
+    Detect a vertically repeating sub-pattern and extend by 50%.
+    Tries sub-pattern lengths from h//2 down to 2.
+    """
+    h, w = grid.shape
+    for period in range(h // 2, 1, -1):
+        if h % period != 0:
+            continue
+        pattern = grid[:period, :]
+        matches = True
+        for start in range(period, h, period):
+            chunk = grid[start:start + period, :]
+            if chunk.shape[0] != period or not np.array_equal(chunk, pattern):
+                matches = False
+                break
+        if matches:
+            # Extend by one more period
+            return np.vstack([grid, pattern])
+    # Fallback: try extending by last half
+    half = h // 2
+    if half > 0:
+        bottom = grid[half:, :]
+        return np.vstack([grid, bottom])
+    return grid
+
+
+def top_half(grid: np.ndarray) -> np.ndarray:
+    """Return the top half of the grid."""
+    h = grid.shape[0]
+    return grid[:h // 2, :]
+
+
+def bottom_half(grid: np.ndarray) -> np.ndarray:
+    """Return the bottom half of the grid."""
+    h = grid.shape[0]
+    return grid[h // 2:, :]
+
+
+def left_half(grid: np.ndarray) -> np.ndarray:
+    """Return the left half of the grid."""
+    w = grid.shape[1]
+    return grid[:, :w // 2]
+
+
+def right_half(grid: np.ndarray) -> np.ndarray:
+    """Return the right half of the grid."""
+    w = grid.shape[1]
+    return grid[:, w // 2:]
+
+
+# ============================================================
 # DSL Registry — all operations with their signatures
 # ============================================================
 
@@ -323,6 +425,15 @@ DSL_OPS = [
     ("repeat", repeat_pattern, 1, [(0, 1)]),
     ("largest_obj", largest_object, 0, []),
     ("hollow", hollow, 0, []),
+    # High-level pattern ops
+    ("split_h", split_on_separator_h, 1, [(1, 9)]),
+    ("split_v", split_on_separator_v, 1, [(1, 9)]),
+    ("overlay_and", overlay_intersect, 1, [(1, 9)]),
+    ("extend_v", extend_pattern_v, 0, []),
+    ("top_half", top_half, 0, []),
+    ("bottom_half", bottom_half, 0, []),
+    ("left_half", left_half, 0, []),
+    ("right_half", right_half, 0, []),
 ]
 
 # Lookup by name

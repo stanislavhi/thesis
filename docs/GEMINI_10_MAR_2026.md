@@ -120,6 +120,17 @@ We integrated Memory, World Modeling, and Curiosity into a single `AGIAgent` and
     *   It maintained a higher baseline fitness and showed a clear upward learning trend, while the fresh agent struggled.
     *   **Conclusion**: The internal World Model (physics engine) successfully transferred knowledge, accelerating learning in a novel environment.
 
+## 9. The Theoretical Resolution: Operator Sensitivity
+
+After identifying a contradiction where additive noise succeeded on CartPole but failed on LunarLander, an ablation study resolved the issue.
+
+### Experiment: `experiments/stress_tests/ablation_lunar_lander.py` and `experiments/ablation_robustness_test.py`
+*   **Scenario**: Tested "Additive Noise" (Global Heat) vs "Targeted Dropout" (Localized Annealing) across both environments.
+*   **Result**:
+    *   **Low Capacity / Low Complexity (CartPole)**: Additive Noise forces a necessary global phase transition to escape the local minimum. Targeted dropout fails.
+    *   **High Capacity / High Complexity (LunarLander)**: Additive Noise destroys fragile representations (catastrophic forgetting). Targeted dropout surgically removes "dead" neurons, forcing successful neuroplastic rewiring.
+    *   **Conclusion**: The optimal thermodynamic recovery operator is a function of the system's Heat Capacity ($C_V$) and the task's Energy Barrier ($\Delta E$).
+
 ## Summary of Key Files Created/Modified
 
 | File Path | Description |
@@ -139,3 +150,4 @@ We integrated Memory, World Modeling, and Curiosity into a single `AGIAgent` and
 | `experiments/maze_runner.py` | **Grand Finale**: Visual proof of escaping local optima. |
 | `agi/agent.py` | The unified AGI Agent architecture. |
 | `agi/run_gauntlet.py` | **Final Proof**: Demonstrates Transfer Learning via World Models. |
+| `docs/THE_THERMODYNAMIC_OPERATOR.md` | Theoretical framework explaining the ablation results. |

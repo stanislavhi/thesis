@@ -19,6 +19,7 @@ class LLMSwarmAgent(nn.Module):
     def __init__(self, agent_id, vocab_size=1000, hidden_dim=64, num_layers=2, thought_vector_dim=32):
         super().__init__()
         self.agent_id = agent_id
+        self.hidden_dim = hidden_dim
         
         # The "brain" of the agent is a self-evolving LLM
         self.brain = EvolvingLLMAgent(
@@ -34,17 +35,17 @@ class LLMSwarmAgent(nn.Module):
     def forward(self, partial_observation):
         """
         Processes a partial view of the world and outputs a thought.
-        
-        Args:
-            partial_observation (Tensor): Shape (batch_size, seq_len)
-            
-        Returns:
-            thought_vector (Tensor): Shape (batch_size, thought_vector_dim)
         """
-        # Get the final hidden state from the brain
-        # The EvolvingLLMAgent's forward returns logits, but we need the hidden states.
-        # We'll re-implement a simplified forward pass here for that purpose.
+        # CRITICAL FIX: We MUST call self.brain() to trigger the internal
+        # physics monitoring (sigma calculation) inside the EvolvingLLMAgent.
+        # However, self.brain() returns logits. We need the hidden states.
+        # We can run the normal forward pass just to trigger the monitoring,
+        # and then extract the state we need.
         
+        # 1. Trigger the actual brain to update its internal thermodynamic state
+        _ = self.brain(partial_observation)
+        
+        # 2. Now extract the representation for the thought vector
         x = self.brain.model.embedding(partial_observation)
         for layer in self.brain.model.layers:
             attn_out = layer['attention'](layer['norm1'](x))
@@ -52,10 +53,8 @@ class LLMSwarmAgent(nn.Module):
             mlp_out = layer['mlp'](layer['norm2'](x))
             x = x + mlp_out
             
-        # Use the final hidden state of the [CLS] token (or average pooling)
-        final_hidden_state = x.mean(dim=1) # Average pooling over the sequence
-        
-        # Project to a compressed thought vector
+        # Use the final hidden state
+        final_hidden_state = x.mean(dim=1)
         thought_vector = self.thought_projector(final_hidden_state)
         
         return thought_vector
@@ -78,16 +77,10 @@ class HolographicChannel(nn.Module):
         self.base_noise = noise_level
         
     def forward(self, thoughts, system_temperature=1.0):
-        """
-        Args:
-            thoughts (List[Tensor]): List of thought vectors from agents.
-            system_temperature (float): Current stress/loss level of the system.
-        """
         # Concatenate all thoughts into a single tensor
         combined_thoughts = torch.cat(thoughts, dim=-1)
         
         # Calculate noise magnitude
-        # Higher temperature (stress) = More noise (communication breakdown)
         current_noise = self.base_noise * system_temperature
         
         # Add Gaussian noise

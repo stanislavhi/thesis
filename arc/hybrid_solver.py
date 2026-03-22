@@ -51,6 +51,10 @@ class GridAnalyzer:
             "bg_changes": False,
             "n_objects_change": False,
             "colors_swapped": False,
+            "has_separator_v": False,
+            "has_separator_h": False,
+            "separator_color": 0,
+            "output_extends_input": False,
         }
 
         for ex in examples:
@@ -84,7 +88,6 @@ class GridAnalyzer:
             for c1 in in_colors:
                 for c2 in in_colors:
                     if c1 < c2:
-                        # Check if c1 and c2 positions are swapped in output
                         mask1_in = inp == c1
                         mask2_in = inp == c2
                         if out.shape == inp.shape:
@@ -106,6 +109,25 @@ class GridAnalyzer:
                         tiled = np.tile(inp, (rr, cr))
                         if np.array_equal(tiled, out):
                             features["output_is_tiled"] = True
+
+            # Separator detection — uniform color row/column in input
+            h, w = inp.shape
+            for c in range(w):
+                col = inp[:, c]
+                if len(np.unique(col)) == 1 and col[0] != 0:
+                    features["has_separator_v"] = True
+                    features["separator_color"] = int(col[0])
+            for r in range(h):
+                row = inp[r, :]
+                if len(np.unique(row)) == 1 and row[0] != 0:
+                    features["has_separator_h"] = True
+                    features["separator_color"] = int(row[0])
+
+            # Pattern extension — output is ~1.5x height of input
+            if out.shape[1] == inp.shape[1] and inp.shape[0] > 0:
+                ratio = out.shape[0] / inp.shape[0]
+                if 1.3 < ratio < 2.1:
+                    features["output_extends_input"] = True
 
         return features
 
@@ -135,11 +157,16 @@ class GridAnalyzer:
             weights["mirror_h"] = 3.0
             weights["mirror_v"] = 3.0
             weights["repeat"] = 3.0
+            weights["extend_v"] = 5.0
 
         if features["output_smaller"]:
             weights["crop"] = 6.0
             weights["keep_color"] = 4.0
             weights["largest_obj"] = 5.0
+            weights["top_half"] = 3.0
+            weights["bottom_half"] = 3.0
+            weights["left_half"] = 3.0
+            weights["right_half"] = 3.0
 
         if features["has_symmetry_h"]:
             weights["mirror_h"] = 5.0
@@ -150,15 +177,32 @@ class GridAnalyzer:
             weights["flip_v"] = 3.0
 
         if features["same_shape"]:
-            # Suppress size-changing ops
-            for op in ["tile", "scale", "pad", "crop", "mirror_h", "mirror_v", "repeat"]:
-                if weights[op] <= 2.0:
+            for op in ["tile", "scale", "pad", "crop", "mirror_h", "mirror_v", "repeat",
+                        "extend_v", "top_half", "bottom_half", "left_half", "right_half"]:
+                if op in weights and weights[op] <= 2.0:
                     weights[op] = 0.3
 
         if features["bg_changes"]:
             weights["fill_bg"] = max(weights["fill_bg"], 4.0)
             weights["flood_fill"] = 3.0
             weights["draw_border"] = 2.0
+
+        # Separator → split + overlay ops
+        if features["has_separator_v"]:
+            weights["split_v"] = 8.0
+            weights["overlay_and"] = 10.0
+            weights["left_half"] = 4.0
+            weights["right_half"] = 4.0
+
+        if features["has_separator_h"]:
+            weights["split_h"] = 8.0
+            weights["top_half"] = 4.0
+            weights["bottom_half"] = 4.0
+
+        # Pattern extension
+        if features["output_extends_input"]:
+            weights["extend_v"] = 10.0
+            weights["repeat"] = 5.0
 
         # Normalize to probabilities
         total = sum(weights.values())

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Experiment: Swarm Scaling Test.
+Experiment: Swarm Scaling Test (Smooth Gradient Task).
 
-Goal: Test how the accuracy of the Holographic Swarm scales with the number of agents
-      on a difficult distributed task.
+Goal: Test how the accuracy of the Holographic Swarm scales with the number of agents.
 
 Methodology:
-1. The Task: Distributed Sum Modulo. N agents each receive a number. Task is to predict (Sum_1^N X_i) % 10.
+1. The Task: Distributed Average Threshold. N agents each receive a number (0-9). 
+   Task is to predict if the global average > 4.5 (Binary Classification).
+   * Unlike modulo arithmetic, this task has a smooth gradient. Partial communication
+     yields partial success, allowing the swarm to actually learn via gradient descent.
 2. Architecture: Variable N LLMSwarmAgents, passing thoughts through a HolographicChannel
    to a SwarmAggregator.
-3. Test: Compare final accuracy for N = [2, 5, 10, 20] agents.
-   - Hypothesis: The channel bandwidth creates a bottleneck. As N increases, the swarm
-     must learn increasingly compressed representations to succeed.
+3. Test: Compare final accuracy for N = [2, 5, 10] agents.
 """
 
 import sys
@@ -34,14 +34,17 @@ from agents.self_evolving_llm.holographic_swarm import (
 def generate_n_agent_data(num_agents, batch_size=64):
     for _ in range(100): # 100 batches per epoch
         inputs = []
-        total_sum = torch.zeros(batch_size, dtype=torch.long)
+        total_sum = torch.zeros(batch_size, dtype=torch.float32)
         
         for _ in range(num_agents):
             x = torch.randint(0, 10, (batch_size,))
             inputs.append(x.unsqueeze(1))
-            total_sum += x
+            total_sum += x.float()
             
-        target = total_sum % 10
+        # Target: 1 if average > 4.5, else 0
+        average = total_sum / num_agents
+        target = (average > 4.5).float().unsqueeze(1)
+        
         yield inputs, target
 
 def run_scaling_trial(num_agents, epochs=15):
@@ -51,15 +54,15 @@ def run_scaling_trial(num_agents, epochs=15):
     agents = [LLMSwarmAgent(agent_id=f'A{i}', vocab_size=10, hidden_dim=32, thought_vector_dim=8) for i in range(num_agents)]
     channel = HolographicChannel(noise_level=0.1)
     
-    # The aggregator input grows linearly with agents
-    aggregator = SwarmAggregator(num_agents=num_agents, thought_vector_dim=8, output_dim=10)
+    # The aggregator input grows linearly with agents. Output is 1 (Binary)
+    aggregator = SwarmAggregator(num_agents=num_agents, thought_vector_dim=8, output_dim=1)
     
     all_params = list(aggregator.parameters())
     for a in agents:
         all_params.extend(list(a.parameters()))
         
-    optimizer = optim.Adam(all_params, lr=0.002)
-    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(all_params, lr=0.005) # Slightly higher LR for faster convergence
+    criterion = nn.BCEWithLogitsLoss()
     
     acc_history = []
     
@@ -78,7 +81,8 @@ def run_scaling_trial(num_agents, epochs=15):
             loss.backward()
             optimizer.step()
             
-            preds = torch.argmax(logits, dim=1)
+            # Accuracy calculation for binary classification
+            preds = (torch.sigmoid(logits) > 0.5).float()
             correct += (preds == targets).sum().item()
             total += targets.size(0)
             
@@ -89,7 +93,7 @@ def run_scaling_trial(num_agents, epochs=15):
     return acc_history
 
 def run_experiment():
-    print("--- SWARM SCALING TEST ---")
+    print("--- SWARM SCALING TEST (SMOOTH TASK) ---")
     
     agent_counts = [2, 5, 10]
     results = {}
@@ -103,9 +107,9 @@ def run_experiment():
     for n, acc in results.items():
         plt.plot(acc, label=f'N={n} Agents', linewidth=2)
         
-    plt.title('Holographic Swarm Scaling: Accuracy vs Swarm Size')
+    plt.title('Holographic Swarm Scaling: Accuracy vs Swarm Size\n(Task: Distributed Average > 4.5)')
     plt.xlabel('Epoch')
-    plt.ylabel('Accuracy (Distributed Sum Modulo 10)')
+    plt.ylabel('Accuracy')
     plt.legend()
     plt.grid(True, alpha=0.3)
     

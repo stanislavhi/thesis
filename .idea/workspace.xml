@@ -5,18 +5,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="660a53fa-8bdb-4f20-bc9f-7e0d1e095ef9" name="Changes" comment="feat: more">
-      <change afterPath="$PROJECT_DIR$/agi/agent.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agi/components.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/agi/run_gauntlet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/THE_THERMODYNAMIC_OPERATOR.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/ablation_robustness_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/analytical_proof.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/prospective_operator_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/stress_tests/ablation_lunar_lander.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/stress_tests/lunar_lander_gradual_degradation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/stress_tests/lunar_lander_targeted_damage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/swarm_resilience_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/experiments/swarm_scaling_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/physics/tests/test_bound_deterministic.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents/thermodynamic/thermo_injector.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/thermodynamic/thermo_injector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agents/self_evolving_llm/holographic_swarm.py" beforeDir="false" afterPath="$PROJECT_DIR$/agents/self_evolving_llm/holographic_swarm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arc/dsl.py" beforeDir="false" afterPath="$PROJECT_DIR$/arc/dsl.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arc/hybrid_solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/arc/hybrid_solver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/GEMINI_10_MAR_2026.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/UNIFIED_THEORY.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/PAPER.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/PAPER.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/SUMMARY.MD" beforeDir="false" afterPath="$PROJECT_DIR$/docs/SUMMARY.MD" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/experiment_sweep_barrier.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/experiment_sweep_barrier.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/experiment_sweep_eta.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/experiment_sweep_eta.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/physics_verification.png" beforeDir="false" afterPath="$PROJECT_DIR$/logs/physics_verification.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/core/coupling.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/core/coupling.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/core/dynamics.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/core/dynamics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/core/entropy.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/core/entropy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/experiments/sweep_barrier.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/experiments/sweep_barrier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/experiments/sweep_eta.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/experiments/sweep_eta.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/experiments/validate_transformer_bound.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/experiments/validate_transformer_bound.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/substrate/kramers.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/substrate/kramers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/physics/tests/test_bound.py" beforeDir="false" afterPath="$PROJECT_DIR$/physics/tests/test_bound.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/stanislavhiznicenco/IdeaProjects/thesis" value="3Ac8ijM61dJqKyEvkDfUmddvr6n" />
+    </persistenceIdMap>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -55,40 +82,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python tests.Python tests in test_qwen_thermodynamic.py.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.noise_test.executor": "Run",
-    "Python.plot_rl.executor": "Run",
-    "Python.plot_swarm.executor": "Run",
-    "Python.rl_swarm.executor": "Run",
-    "Python.run_holographic_swarm.executor": "Run",
-    "Python.run_rl.executor": "Run",
-    "Python.run_swarm.executor": "Run",
-    "Python.sweep_barrier.executor": "Run",
-    "Python.sweep_eta.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.test_bound.executor": "Run",
-    "Python.test_localization.executor": "Run",
-    "Python.test_robustness.executor": "Run",
-    "Python.test_static_model.executor": "Run",
-    "Python.visualize.executor": "Run",
-    "Python.visualize_rl.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "git-widget-placeholder": "feature/two",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/stanislavhiznicenco/IdeaProjects/thesis",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.22336066"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python tests.Python tests in test_qwen_thermodynamic.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.noise_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.plot_rl.executor&quot;: &quot;Run&quot;,
+    &quot;Python.plot_swarm.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rl_swarm.executor&quot;: &quot;Run&quot;,
+    &quot;Python.run_holographic_swarm.executor&quot;: &quot;Run&quot;,
+    &quot;Python.run_rl.executor&quot;: &quot;Run&quot;,
+    &quot;Python.run_swarm.executor&quot;: &quot;Run&quot;,
+    &quot;Python.sweep_barrier.executor&quot;: &quot;Run&quot;,
+    &quot;Python.sweep_eta.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_bound.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_localization.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_robustness.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_static_model.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualize.executor&quot;: &quot;Run&quot;,
+    &quot;Python.visualize_rl.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#2 on feature/two&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/stanislavhiznicenco/IdeaProjects/thesis&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.22336066&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -286,6 +316,17 @@
     <option name="localTasksCounter" value="7" />
     <servers />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: prototype" />
     <MESSAGE value="feat: prototype 2" />
@@ -293,5 +334,13 @@
     <MESSAGE value="fix: csv" />
     <MESSAGE value="feat: more" />
     <option name="LAST_COMMIT_MESSAGE" value="feat: more" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

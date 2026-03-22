@@ -8,6 +8,7 @@ bypassing the instability of numerical integrators to find the exact analytical 
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import os
 
 def generate_proof():
@@ -106,8 +107,8 @@ $$ C_{phys} = \\frac{k_B^2 (\\ln 2)^3 \\eta k_{escape} \\Delta E |1 - 2p|}{C_V} 
     plt.figure(figsize=(8, 6))
     
     # We use a custom colormap where 1.0 is a distinct color
-    cmap = plt.cm.get_cmap('viridis').copy()
-    cmap.set_bad(color='lightgray')
+    # FIX: Use modern Matplotlib API to avoid deprecation warning
+    cmap = mpl.colormaps['viridis'].with_extremes(bad='lightgray')
 
     plt.imshow(alpha_crit, extent=(0, 1, 0, 1), origin='lower', cmap=cmap, vmin=0, vmax=2)
     plt.plot([0, 1], [0, 1], 'k--', label='q=p (Fixed points / Singularity)')

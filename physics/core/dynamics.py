@@ -14,7 +14,7 @@ class CoupledDynamics:
 
     def simulate(self, q0, p0, t_span):
         """
-        Runs the simulation over the given time span using RK4.
+        Runs the simulation over the given time span using Euler-Maruyama.
         """
         dt = t_span[1] - t_span[0]
         n_steps = len(t_span)
@@ -25,35 +25,32 @@ class CoupledDynamics:
         current_state = np.array([q0, p0])
         
         for i in range(1, n_steps):
-            t = t_span[i-1]
-            
-            # RK4 Integration (Deterministic part)
-            # Note: Adding noise inside RK4 steps is mathematically dubious for SDEs (Ito vs Stratonovich).
-            # For a verification prototype, we will use Euler-Maruyama for the stochastic part
-            # and RK4 for the deterministic part, or just switch to Euler for simplicity/correctness with noise.
-            
-            # Let's switch to Euler-Maruyama for correct noise handling
-            # dq = f(q,p)*dt
-            # dp = g(q,p)*dt + sigma*dW
-            
             q, p = current_state
             epsilon = 1e-9
             q = np.clip(q, epsilon, 1 - epsilon)
             p = np.clip(p, epsilon, 1 - epsilon)
             
+            # Deterministic drift
             dq_dt = -self.eta * np.log( (q * (1 - p)) / (p * (1 - q)) )
+            
+            # FIX 2: Adaptive clipping to prevent numerical blowup at high eta
+            # If the gradient is massive, the discrete time step will overshoot [0,1] bounds violently
+            dq_dt = np.clip(dq_dt, -10.0, 10.0)
+            
             dp_dt_det = self.alpha * np.abs(dq_dt)
             
-            # Update
+            # Update q
             q_new = q + dq_dt * dt
             
+            # Update p with thermal noise
             noise = 0.0
             if self.T > 0:
-                noise = np.random.normal(0, np.sqrt(2 * self.T * dt)) # Correct SDE scaling
+                # FIX: Ensure noise scale is physical relative to dt
+                noise = np.random.normal(0, np.sqrt(2 * self.T * dt)) 
             
             p_new = p + dp_dt_det * dt + noise
             
-            # Clamp
+            # Clamp to probability space
             q_new = np.clip(q_new, epsilon, 1 - epsilon)
             p_new = np.clip(p_new, epsilon, 1 - epsilon)
             

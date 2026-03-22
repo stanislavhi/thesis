@@ -23,14 +23,15 @@ def sweep_eta():
     
     alpha = 1.0
     T = 0.1
-    t = np.linspace(0, 50, 500)
+    # FIX: Increase to 5000 steps to kill integrator instability
+    t = np.linspace(0, 50, 5000)
     dt = t[1] - t[0]
     
     for eta in etas:
         model = CoupledDynamics(eta, alpha, temperature=T)
         traj = model.simulate(0.2, 0.8, t)
         
-        sigma = calculate_entropy_production(traj, dt)
+        sigma = calculate_entropy_production(traj, dt, eta, T)
         q, p = traj[-1]
         eps = calculate_kl_divergence(q, p)
         
