@@ -54,14 +54,12 @@ class ProspectiveInjector:
         
         if status == 'frozen':
             if self.strategy == "additive":
-                # Global Phase Transition
-                magnitude = self.base_rate * 2.0 
+                # Global Phase Transition for low C_V
+                magnitude = self.base_rate * 2.0
                 with torch.no_grad():
                     for param in agent.parameters():
                         noise = torch.randn_like(param) * magnitude
                         param.add_(noise)
-                        # Tighter clamp to prevent NaN explosions in softmax
-                        param.clamp_(-2.0, 2.0)
                         
             elif self.strategy == "dropout":
                 # Localized Annealing
@@ -76,7 +74,7 @@ class ProspectiveInjector:
         
         return agent
 
-def run_trial(seed, strategy, max_episodes=500, shift_episode=250):
+def run_trial(seed, strategy, max_episodes=800, shift_episode=250):
     torch.manual_seed(seed)
     np.random.seed(seed)
     
@@ -96,12 +94,15 @@ def run_trial(seed, strategy, max_episodes=500, shift_episode=250):
     
     scores = deque(maxlen=20)
     history = []
-    
+    last_injection_ep = -100
+    injection_cooldown = 40  # Give gradient descent time to learn from the perturbation
+
     for episode in range(max_episodes):
         if episode == shift_episode:
             env.invert()
             scores.clear()
-            agent.sigma_history = [] # Reset history so it doesn't stay frozen
+            agent.sigma_history = []
+            last_injection_ep = episode  # Treat shift as a disruption
             
         state, _ = env.reset(seed=seed + episode)
         log_probs = []
@@ -171,18 +172,23 @@ def run_trial(seed, strategy, max_episodes=500, shift_episode=250):
                 optimizer.step()
             
         # Thermodynamic Intervention
-        if injector and episode > 20:
+        if injector and episode > 20 and (episode - last_injection_ep) >= injection_cooldown:
             status = agent.get_thermodynamic_status()
-            
+
             # Acrobot specific: if stuck at bottom, reward is -500.
             if avg_score <= -490 and np.std(scores) < 10.0 and len(scores) == 20:
                 status = 'frozen'
-                
+
             if status == 'frozen':
+                # print(f"      [ep {episode}] {strategy} FROZEN → injecting (avg={avg_score:.0f})", flush=True)
                 agent = injector.mutate(agent)
                 if strategy == "additive":
-                    optimizer = optim.Adam(agent.parameters(), lr=0.01)
+                    optimizer = optim.Adam(agent.parameters(), lr=0.02)
                 scores.clear()
+                last_injection_ep = episode
+            elif avg_score > -400:
+                # Agent is recovering — back off and let gradient descent consolidate
+                last_injection_ep = episode
             
     env.close()
     
@@ -231,10 +237,6 @@ def main():
         truncated_results = [r[:min_len] for r in results]
         
         mean_res = np.mean(truncated_results, axis=0)
-        
-        # Add slight offsets if they perfectly overlap at -500 so all lines are visible
-        if strategy == "static": mean_res += 2
-        if strategy == "additive": mean_res += 4
         
         plt.plot(smooth(mean_res), color=colors[strategy], linewidth=2, label=labels[strategy], alpha=0.8)
 

@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from core.chaos import LorenzGenerator
-from agents.rl_policy import EvolvingPolicy, RLChaosInjector
+from agents.thermodynamic.thermo_agent import ThermodynamicAgent
+from agents.thermodynamic.thermo_injector import ThermodynamicInjector
 
 
 def inflict_brain_damage(policy, damage_ratio=0.5):
@@ -38,14 +39,16 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
     input_dim = env.observation_space.shape[0]
     output_dim = env.action_space.n
 
-    policy = EvolvingPolicy(input_dim, 16, output_dim)
+    policy = ThermodynamicAgent(input_dim, 16, output_dim)
     optimizer = optim.Adam(policy.parameters(), lr=0.01)
 
     chaos_gen = LorenzGenerator()
-    injector = RLChaosInjector(chaos_gen)
+    injector = ThermodynamicInjector(chaos_gen)
 
     scores = deque(maxlen=20)
     history = []
+    last_mutation_ep = -100
+    mutation_cooldown = 30
 
     for episode in range(max_episodes):
         # --- BRAIN DAMAGE at the specified episode ---
@@ -54,9 +57,9 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
             total_params = sum(p.numel() for p in policy.parameters())
             print(f"   [Seed {seed}] BRAIN DAMAGE at ep {episode}: "
                   f"zeroed {n_zeroed}/{total_params} params ({100*n_zeroed/total_params:.0f}%)")
-            # Reset optimizer state (momentum etc are stale after damage)
             optimizer = optim.Adam(policy.parameters(), lr=0.01)
             scores.clear()
+            last_mutation_ep = episode
 
         state, _ = env.reset()
         log_probs = []
@@ -101,12 +104,27 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
             torch.stack(policy_loss).sum().backward()
             optimizer.step()
 
-        # Chaos Injection — only if enabled
-        if use_chaos and episode > 20 and avg_score < 50:
-            if np.std(scores) < 10.0 or episode == damage_episode + 5:
-                policy = injector.mutate(policy)
+        # Thermodynamic chaos injection — uses Operator Selection Rule
+        if use_chaos and episode > 20 and len(scores) == scores.maxlen:
+            eps_since_mutation = episode - last_mutation_ep
+            if eps_since_mutation < mutation_cooldown:
+                continue
+
+            # Let the agent self-diagnose
+            status = policy.get_thermodynamic_status()
+
+            # Check if scores are trending upward (recovering, not stagnated)
+            scores_list = list(scores)
+            first_half = np.mean(scores_list[:len(scores_list)//2])
+            second_half = np.mean(scores_list[len(scores_list)//2:])
+            is_recovering = second_half > first_half + 5.0
+
+            # Only inject if truly frozen AND not recovering
+            if status == 'frozen' and avg_score < 100 and np.std(scores) < 10.0 and not is_recovering:
+                policy = injector.mutate(policy, status=status)
                 optimizer = optim.Adam(policy.parameters(), lr=0.01)
                 scores.clear()
+                last_mutation_ep = episode
 
     env.close()
     return history
@@ -115,13 +133,13 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
 def main():
     print("--- STRESS TEST: BRAIN DAMAGE RESILIENCE ---")
     print("Training 150 eps -> Zero 50% of weights -> Continue 250 eps")
-    print("Comparing CHAOS (adaptive) vs STATIC (fixed architecture)\n")
+    print("Comparing CHAOS (Operator Selection Rule) vs STATIC (fixed architecture)\n")
 
     seeds = [42, 101, 999, 123, 777]
     chaos_results = []
     static_results = []
 
-    print(">>> Running CHAOS trials...")
+    print(">>> Running CHAOS trials (ThermodynamicAgent + Operator Selection)...")
     for seed in seeds:
         print(f"   Seed {seed}...", flush=True)
         res = run_brain_damage_trial(seed, use_chaos=True)
@@ -161,7 +179,7 @@ def main():
     plt.figure(figsize=(12, 6))
     x = np.arange(len(chaos_mean))
 
-    plt.plot(x, chaos_mean, color='blue', linewidth=2, label='Chaos (Adaptive)')
+    plt.plot(x, chaos_mean, color='blue', linewidth=2, label='Chaos (Operator Selection)')
     plt.fill_between(x, chaos_mean - chaos_std, chaos_mean + chaos_std, color='blue', alpha=0.15)
 
     plt.plot(x, static_mean, color='red', linewidth=2, label='Static (Fixed)')
@@ -175,7 +193,6 @@ def main():
     plt.legend(fontsize=11)
     plt.grid(True, alpha=0.3)
 
-    # Add recovery annotation
     plt.annotate(f'Chaos recovery: {chaos_final:.0f}', xy=(370, chaos_final),
                  fontsize=10, color='blue', fontweight='bold')
     plt.annotate(f'Static recovery: {static_final:.0f}', xy=(370, static_final),
