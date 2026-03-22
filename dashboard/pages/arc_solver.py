@@ -1,5 +1,6 @@
 import streamlit as st
 import numpy as np
+import uuid
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import sys
@@ -80,7 +81,7 @@ def render():
                     marker_color=["#818cf8", "#a78bfa", "#c4b5fd", "#ddd6fe", "#ede9fe", "#f5f3ff"],
                 )])
                 fig_ops.update_layout(
-                    template="plotly_dark", height=200,
+                    template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=200,
                     margin=dict(l=20, r=20, t=10, b=40),
                     yaxis_title="Weight",
                 )
@@ -150,7 +151,7 @@ def render():
                 fill="tozeroy", fillcolor="rgba(99, 102, 241, 0.1)",
             ))
             fig.update_layout(
-                template="plotly_dark", height=250,
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=250,
                 title="Fitness Over Generations",
                 xaxis_title="Generation", yaxis_title="Best Fitness",
                 margin=dict(l=40, r=20, t=40, b=40),
@@ -197,6 +198,11 @@ def _render_grid(grid: np.ndarray):
         margin=dict(l=0, r=0, t=0, b=0),
         xaxis=dict(showticklabels=False, showgrid=False),
         yaxis=dict(showticklabels=False, showgrid=False),
-        plot_bgcolor="#0e1117",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key=str(uuid.uuid4()))
+
+if __name__ == "__main__":
+    st.set_page_config(layout="wide")
+    render()

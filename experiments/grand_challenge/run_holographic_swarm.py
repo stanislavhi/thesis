@@ -12,26 +12,7 @@ from collections import deque
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from core.chaos import LorenzGenerator
-from agents.swarm import SwarmAgent, HolographicChannel, ChaosInjector
-
-
-class SwarmAggregator(nn.Module):
-    """
-    Aggregates noisy thought vectors from multiple blind agents into action logits.
-    Unlike HolographicAggregator, this outputs action_dim logits for proper softmax.
-    """
-    def __init__(self, input_dim, hidden_dim, action_dim):
-        super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, action_dim),
-        )
-
-    def forward(self, x):
-        logits = self.net(x)
-        return torch.softmax(logits, dim=-1)
-
+from agents.grand_challenge import HolographicSwarm
 
 # Environment-specific agent configurations
 # Each entry: list of (name, state_indices) per agent
@@ -63,7 +44,6 @@ ENV_CONFIGS = {
     },
 }
 
-
 def train_holographic_swarm(env_name, episodes=None):
     config = ENV_CONFIGS.get(env_name)
     if config is None:
@@ -75,44 +55,23 @@ def train_holographic_swarm(env_name, episodes=None):
         episodes = config["episodes"]
 
     env = gym.make(env_name)
-    action_dim = env.action_space.n
-    thought_size = config["thought_size"]
-
-    # Initialize agents — each sees only its assigned state indices
-    agents = []
-    agent_configs = config["agents"]
-    for name, indices in agent_configs:
-        input_dim = len(indices)
-        agent = SwarmAgent(input_dim, config["hidden_dim"], thought_size, name)
-        agents.append(agent)
-
-    # Channel adds Hawking noise proportional to inverse performance
-    channel = HolographicChannel(bekenstein_bits=1e70)
-
-    # Aggregator: takes all thought vectors, outputs action probabilities
-    total_thought_dim = len(agents) * thought_size
-    aggregator = SwarmAggregator(total_thought_dim, config["agg_hidden"], action_dim)
-
-    # Optimizer over all components
-    params = list(aggregator.parameters()) + list(channel.parameters())
-    for a in agents:
-        params += list(a.parameters())
-    optimizer = optim.Adam(params, lr=config["lr"])
-
-    # Chaos engine
-    chaos_gen = LorenzGenerator()
-    injector = ChaosInjector(chaos_gen)
+    
+    swarm = HolographicSwarm(
+        action_dim=env.action_space.n,
+        thought_size=config["thought_size"],
+        hidden_dim=config["hidden_dim"],
+        agg_hidden=config["agg_hidden"],
+        agent_configs=config["agents"],
+        lr=config["lr"]
+    )
 
     scores = deque(maxlen=50)
     log_data = []
 
-    # Header
-    agent_desc = " | ".join(
-        f"{name} sees {indices}" for name, indices in agent_configs
-    )
+    agent_desc = " | ".join(f"{name} sees {indices}" for name, indices in config["agents"])
     print(f"--- HOLOGRAPHIC SWARM: BLIND {env_name} ---")
     print(f"Agents: {agent_desc}")
-    print(f"Thought size: {thought_size} | Aggregator hidden: {config['agg_hidden']}")
+    print(f"Thought size: {config['thought_size']} | Aggregator hidden: {config['agg_hidden']}")
     print(f"Episodes: {episodes} | Solved: {config['solved_threshold']}")
     print("They must communicate to survive.\n", flush=True)
 
@@ -122,27 +81,10 @@ def train_holographic_swarm(env_name, episodes=None):
         rewards = []
 
         while True:
-            # Each agent observes only its assigned state slice
-            thoughts = []
-            for i, (name, indices) in enumerate(agent_configs):
-                agent_obs = torch.FloatTensor(state[indices]).unsqueeze(0)
-                thought = agents[i](agent_obs)
-                thoughts.append(thought)
-
-            # Communicate via noisy channel
             avg_score = np.mean(scores) if len(scores) > 0 else 10.0
-            noise_level = 10.0 / (avg_score + 1e-9)
-            noisy_thoughts = channel(thoughts, noise_level)
+            action, log_prob = swarm.predict(state, avg_score)
 
-            # Aggregator decides action
-            probs = aggregator(noisy_thoughts)
-
-            dist = torch.distributions.Categorical(probs)
-            action = dist.sample()
-            log_prob = dist.log_prob(action)
-
-            next_state, reward, done, truncated, _ = env.step(action.item())
-
+            next_state, reward, done, truncated, _ = env.step(action)
             log_probs.append(log_prob)
             rewards.append(reward)
             state = next_state
@@ -160,58 +102,35 @@ def train_holographic_swarm(env_name, episodes=None):
         for r in reversed(rewards):
             R = r + 0.99 * R
             discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
+            
+        discounted_tensor = torch.tensor(discounted_rewards)
+        if len(discounted_tensor) > 1:
+            discounted_tensor = (discounted_tensor - discounted_tensor.mean()) / (discounted_tensor.std() + 1e-9)
 
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
+        policy_loss = [-lp * R for lp, R in zip(log_probs, discounted_tensor)]
+        swarm.update(policy_loss)
 
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
-
-        # Log data
-        agent_sizes = "|".join(str(a.net[0].out_features) for a in agents)
+        # Logging
+        agent_sizes = swarm.get_agent_sizes_string()
         log_data.append(f"{episode},{total_reward},{avg_score},{agent_sizes}")
 
-        # Chaos Injection on stagnation
+        # Chaos Injection / Mutation logic
         if episode > 20 and avg_score < config["solved_threshold"] * 0.5 and np.std(scores) < 5.0:
             print(f"\n[Episode {episode}] Swarm Stagnation (Avg: {avg_score:.1f}). Mutating...", flush=True)
-
-            # Mutate: use ChaosInjector but rebuild with correct aggregator type
-            new_agents_list, _ = injector.mutate_swarm(agents, aggregator)
-            agents = new_agents_list
-
-            # Rebuild aggregator with correct output dim
-            new_total_thought = sum(a.net[-1].out_features for a in agents)
-            aggregator = SwarmAggregator(new_total_thought, config["agg_hidden"], action_dim)
-
-            # Re-init optimizer
-            params = list(aggregator.parameters()) + list(channel.parameters())
-            for a in agents:
-                params += list(a.parameters())
-            optimizer = optim.Adam(params, lr=config["lr"])
+            swarm.mutate()
             scores.clear()
 
         if episode % 20 == 0:
-            print(f"Episode {episode} | Score: {total_reward:.0f} | Avg: {avg_score:.1f} | "
-                  f"Agents: [{agent_sizes}]", flush=True)
+            print(f"Episode {episode} | Score: {total_reward:.0f} | Avg: {avg_score:.1f} | Agents: [{agent_sizes}]", flush=True)
 
         if avg_score > config["solved_threshold"]:
-            print(f"\n>>> HOLOGRAPHIC SWARM SOLVED {env_name}! "
-                  f"Avg: {avg_score:.1f}", flush=True)
+            print(f"\n>>> HOLOGRAPHIC SWARM SOLVED {env_name}! Avg: {avg_score:.1f}", flush=True)
             break
 
     env.close()
 
-    # Save log
     env_tag = env_name.replace("-", "_").lower()
-    log_path = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), f'../../logs/holographic_swarm_{env_tag}_log.csv'
-    ))
+    log_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f'../../logs/holographic_swarm_{env_tag}_log.csv'))
     with open(log_path, "w") as f:
         f.write("episode,score,avg_score,agent_hidden_sizes\n")
         f.write("\n".join(log_data))

@@ -79,7 +79,7 @@ def render():
         )])
 
         fig.update_layout(
-            template="plotly_dark",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             height=650,
             scene=dict(
                 xaxis_title="X",
@@ -110,7 +110,7 @@ def render():
             name="Z / max(|Z|)",
         ))
         fig_hist.update_layout(
-            template="plotly_dark",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             height=300,
             xaxis_title="Normalized Z (mutation perturbation)",
             yaxis_title="Count",
@@ -141,3 +141,9 @@ def render():
         The chaotic nature ensures mutations are **deterministic but unpredictable**,
         providing structured exploration of the architecture space without random noise.
         """)
+
+
+if __name__ == "__main__":
+    import streamlit as st
+    st.set_page_config(layout="wide")
+    render()

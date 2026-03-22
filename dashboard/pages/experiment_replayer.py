@@ -95,7 +95,7 @@ def _render_rl_log(df, filename):
             fill="tozeroy", fillcolor="rgba(249, 115, 22, 0.1)",
         ))
         fig_ent.update_layout(
-            template="plotly_dark",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             height=300,
             xaxis_title="Episode",
             yaxis_title="Entropy Production",
@@ -144,7 +144,7 @@ def _build_rl_chart(df, title):
         fig.update_yaxes(title_text="Neurons", row=2, col=1)
 
     fig.update_layout(
-        template="plotly_dark",
+        template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         height=500 if has_hidden else 350,
         title=dict(text=title.replace(".csv", "").replace("_", " ").title(), font=dict(size=16)),
         showlegend=True,
@@ -182,7 +182,7 @@ def _render_swarm_log(df, filename):
             ))
 
     fig.update_layout(
-        template="plotly_dark",
+        template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         height=400,
         title=dict(text=filename.replace(".csv", "").replace("_", " ").title(), font=dict(size=16)),
         xaxis_title="Epoch",
@@ -193,3 +193,9 @@ def _render_swarm_log(df, filename):
 
     with st.expander("📋 Raw Data"):
         st.dataframe(df, use_container_width=True)
+
+
+if __name__ == "__main__":
+    import streamlit as st
+    st.set_page_config(layout="wide")
+    render()

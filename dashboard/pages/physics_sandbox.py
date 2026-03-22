@@ -147,7 +147,7 @@ def render():
         ), row=3, col=1)
 
         fig.update_layout(
-            template="plotly_dark",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             height=700,
             showlegend=True,
             legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
@@ -167,3 +167,9 @@ def render():
         | ln(2)³ | {ln2**3:.6f} |
         | Bound valid % | {valid_pct:.1f}% |
         """)
+
+
+if __name__ == "__main__":
+    import streamlit as st
+    st.set_page_config(layout="wide")
+    render()

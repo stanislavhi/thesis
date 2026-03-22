@@ -12,7 +12,7 @@ def render():
     st.caption("Run experiments directly from the dashboard and watch results stream in.")
 
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-    venv_python = os.path.join(project_root, '.venv', 'bin', 'python3')
+    venv_python = sys.executable
     logs_dir = os.path.join(project_root, 'logs')
 
     # Experiment selector
@@ -94,7 +94,7 @@ def _run_experiment(cmd, log_file, experiment_name):
                             line=dict(color="#818cf8", width=3),
                         ))
                         fig.update_layout(
-                            template="plotly_dark",
+                            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                             height=350,
                             xaxis_title="Episode",
                             yaxis_title="Score",
@@ -133,7 +133,7 @@ def _run_experiment(cmd, log_file, experiment_name):
                     line=dict(color="#818cf8", width=3),
                 ))
                 fig.update_layout(
-                    template="plotly_dark",
+                    template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                     height=400,
                     title="Final Results",
                     xaxis_title="Episode",
@@ -181,7 +181,7 @@ def _show_latest_results(logs_dir):
                 line=dict(color="#818cf8", width=3),
             ))
             fig.update_layout(
-                template="plotly_dark",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                 height=400,
                 title=latest_name.replace(".csv", "").replace("_", " ").title(),
                 xaxis_title="Episode",
@@ -193,3 +193,9 @@ def _show_latest_results(logs_dir):
             st.dataframe(df, use_container_width=True)
     except Exception as e:
         st.warning(f"Couldn't load latest log: {e}")
+
+
+if __name__ == "__main__":
+    import streamlit as st
+    st.set_page_config(layout="wide")
+    render()
