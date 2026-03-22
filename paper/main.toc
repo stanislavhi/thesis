@@ -22,4 +22,4 @@
 \contentsline {subsection}{\numberline {4.3}The Operator Selection Rule}{9}{subsection.4.3}%
 \contentsline {section}{\numberline {5}The Four-Framework Conjecture}{10}{section.5}%
 \contentsline {section}{\numberline {6}Corroborating Evidence}{11}{section.6}%
-\contentsline {section}{\numberline {7}Future Work}{12}{section.7}%
+\contentsline {section}{\numberline {7}Future Work}{11}{section.7}%
