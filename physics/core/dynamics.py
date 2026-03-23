@@ -35,6 +35,7 @@ class CoupledDynamics:
 
         current_state = np.array([q0, p0])
         epsilon = 1e-9
+        sqrt_2T = np.sqrt(2 * self.T) if self.T > 0 else 0.0
 
         for i in range(1, n_steps):
             q, p = current_state
@@ -57,10 +58,10 @@ class CoupledDynamics:
                 # Diffusion coefficient: sigma(p) = sqrt(2T) * sqrt(p(1-p))
                 # This ensures noise vanishes at boundaries [0,1]
                 # and is maximal at p=0.5
-                diff_p = np.sqrt(2 * self.T) * np.sqrt(p * (1 - p))
+                diff_p = sqrt_2T * np.sqrt(p * (1 - p))
 
                 # Milstein correction: d(sigma)/dp = sqrt(2T) * (1-2p) / (2*sqrt(p(1-p)))
-                dsigma_dp = np.sqrt(2 * self.T) * (1 - 2*p) / (2 * np.sqrt(p * (1 - p)) + epsilon)
+                dsigma_dp = sqrt_2T * (1 - 2*p) / (2 * np.sqrt(p * (1 - p)) + epsilon)
 
                 # Wiener increment
                 dW = np.random.normal(0, sqrt_dt)

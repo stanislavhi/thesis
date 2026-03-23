@@ -67,6 +67,8 @@ class CoupledDynamicsNState:
         q_traj[0] = q
         p_traj[0] = p
 
+        noise_scale = np.sqrt(2 * self.T * dt) if self.T > 0 else 0.0
+
         for i in range(1, n_steps):
             q = self._project_simplex(q)
             p = self._project_simplex(p)
@@ -97,8 +99,6 @@ class CoupledDynamicsNState:
 
             # Update p with optional noise
             if self.T > 0:
-                # State-dependent noise on simplex
-                noise_scale = np.sqrt(2 * self.T * dt)
                 noise = np.random.randn(self.N) * noise_scale * np.sqrt(p * (1 - p))
                 noise -= np.mean(noise)  # Keep on simplex tangent space
                 p_new = p + dp_dt_det * dt + noise

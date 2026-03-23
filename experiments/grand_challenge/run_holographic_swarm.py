@@ -20,7 +20,7 @@ def train_holographic_swarm(env_name, episodes=None):
     config = full_config.get("holographic_swarm", {}).get(env_name)
     if config is None:
         print(f"Error: No agent configuration defined for '{env_name}'.")
-        print(f"Supported environments: {list(ENV_CONFIGS.keys())}")
+        print(f"Supported environments: {list(full_config.get('holographic_swarm', {}).keys())}")
         return
 
     if episodes is None:

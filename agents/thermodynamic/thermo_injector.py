@@ -72,7 +72,8 @@ class ThermodynamicInjector(Mutator):
         Correct operator for high C_V systems (large networks, complex representations).
         """
         with torch.no_grad():
-            for name, param in agent.named_parameters():
+            param_dict = dict(agent.named_parameters())
+            for name, param in param_dict.items():
                 if 'weight' not in name or param.dim() < 2:
                     continue
 
@@ -88,7 +89,7 @@ class ThermodynamicInjector(Mutator):
 
                 # Also zero corresponding bias if it exists
                 bias_name = name.replace('weight', 'bias')
-                bias = dict(agent.named_parameters()).get(bias_name)
+                bias = param_dict.get(bias_name)
                 if bias is not None:
                     bias[lowest_idx] = 0.0
 
@@ -112,8 +113,8 @@ class ThermodynamicInjector(Mutator):
                 status = 'healthy'
 
         # 2. Select operator based on C_V
-        operator = self.select_operator(agent)
         cv = self._estimate_cv(agent)
+        operator = 'additive_noise' if cv < LOW_CV_THRESHOLD else 'targeted_dropout'
         magnitude = self._get_magnitude(status, cv)
         chaos_val = self.chaos_gen.get_perturbation()
 

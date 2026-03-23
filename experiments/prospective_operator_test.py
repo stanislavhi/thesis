@@ -180,7 +180,6 @@ def run_trial(seed, strategy, max_episodes=800, shift_episode=250):
                 status = 'frozen'
 
             if status == 'frozen':
-                # print(f"      [ep {episode}] {strategy} FROZEN → injecting (avg={avg_score:.0f})", flush=True)
                 agent = injector.mutate(agent)
                 if strategy == "additive":
                     optimizer = optim.Adam(agent.parameters(), lr=0.02)
