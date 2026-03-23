@@ -102,20 +102,52 @@ class AGIAgent(EvolutionaryAgent):
         return self.last_wm_loss
 
     def get_thermodynamic_status(self):
-        """Diagnose agent health from hidden-layer sigma history."""
-        if len(self.sigma_history) < 10:
+        """
+        Diagnose agent health via sigma stagnation detection.
+
+        Instead of absolute thresholds (which are architecture-dependent),
+        we detect whether sigma is CHANGING. A flat sigma trace means the
+        network's internal dynamics have stalled — regardless of the
+        absolute value.
+
+        - frozen:     sigma coefficient of variation < 5% over last 20 steps
+        - overheated: sigma is diverging (recent >> baseline)
+        - healthy:    sigma is varying normally
+        """
+        if len(self.sigma_history) < 20:
             return 'healthy'
-        avg_sigma = np.mean(self.sigma_history[-10:])
-        if avg_sigma < 0.15:
+
+        recent = np.array(self.sigma_history[-20:])
+        mean_sigma = np.mean(recent)
+
+        if mean_sigma < 1e-9:
             return 'frozen'
-        elif avg_sigma > 10.0:
-            return 'overheated'
+
+        cv = np.std(recent) / mean_sigma
+
+        # Low coefficient of variation → sigma is flat → frozen
+        if cv < 0.05:
+            return 'frozen'
+
+        # Check for divergence: recent mean >> earlier baseline
+        if len(self.sigma_history) >= 40:
+            baseline = np.mean(self.sigma_history[-40:-20])
+            if baseline > 1e-9 and mean_sigma > baseline * 5.0:
+                return 'overheated'
+
         return 'healthy'
 
     def mutate(self):
-        """Apply thermodynamic mutation to the brain. Injector handles magnitude per status."""
+        """
+        Apply thermodynamic mutation to the brain.
+
+        Forces additive_noise operator: in pure ES (no gradient recovery),
+        targeted_dropout permanently kills neurons since there's no optimizer
+        to revive zeroed weights. Additive noise preserves full network capacity.
+        """
         status = self.get_thermodynamic_status()
-        self.brain = self.injector.mutate(self.brain, status=status)
+        self.brain = self.injector.mutate(self.brain, status=status,
+                                          operator_override='additive_noise')
         return self
 
     def get_topology_info(self):

@@ -33,7 +33,7 @@ def load_config():
 def make_agent(cfg):
     """Create an AGIAgent from config."""
     return AGIAgent(
-        input_dim=2,
+        input_dim=GauntletMaze.OBS_DIM,
         action_dim=4,
         hidden_dim=cfg["hidden_dim"],
         brain_lr=cfg["brain_lr"],
