@@ -20,6 +20,19 @@ __pycache__/
 logs/
 *.log
 
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.toc
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.synctex.gz
+
+# OS
+.DS_Store
+
 # Caches
 .pytest_cache/
 .mypy_cache/
