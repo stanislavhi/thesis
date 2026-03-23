@@ -1,0 +1,55 @@
+{
+  "rl_agent": {
+    "CartPole-v1": {
+        "episodes": 500,
+        "initial_hidden": 4,
+        "solved_threshold": 195,
+        "stagnation_score": 100,
+        "stagnation_std": 5.0,
+        "lr": 0.01
+    },
+    "LunarLander-v3": {
+        "episodes": 1500,
+        "initial_hidden": 32,
+        "solved_threshold": 200,
+        "stagnation_score": -100,
+        "stagnation_std": 20.0,
+        "lr": 0.005
+    },
+    "default": {
+        "episodes": 1000,
+        "initial_hidden": 16,
+        "solved_threshold": 999999,
+        "stagnation_score": 0,
+        "stagnation_std": 10.0,
+        "lr": 0.01
+    }
+  },
+  "holographic_swarm": {
+    "CartPole-v1": {
+        "agents": [
+            ["Position", [0, 1]],
+            ["Angle", [2, 3]]
+        ],
+        "thought_size": 3,
+        "hidden_dim": 16,
+        "agg_hidden": 32,
+        "episodes": 1000,
+        "solved_threshold": 195,
+        "lr": 0.01
+    },
+    "LunarLander-v3": {
+        "agents": [
+            ["Navigator", [0, 1, 2, 3]],
+            ["Pilot", [4, 5]],
+            ["Landing", [6, 7]]
+        ],
+        "thought_size": 3,
+        "hidden_dim": 16,
+        "agg_hidden": 32,
+        "episodes": 2000,
+        "solved_threshold": 200,
+        "lr": 0.005
+    }
+  }
+}

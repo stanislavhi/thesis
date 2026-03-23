@@ -13,40 +13,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from core.chaos import LorenzGenerator
 from agents.rl_policy import EvolvingPolicy, RLChaosInjector
-
-# Environment-specific presets
-ENV_PRESETS = {
-    "CartPole-v1": {
-        "episodes": 500,
-        "initial_hidden": 4,
-        "solved_threshold": 195,
-        "stagnation_score": 100,
-        "stagnation_std": 5.0,
-        "lr": 0.01,
-    },
-    "LunarLander-v3": {
-        "episodes": 1500,
-        "initial_hidden": 32,
-        "solved_threshold": 200,
-        "stagnation_score": -100,
-        "stagnation_std": 20.0,
-        "lr": 0.005,
-    },
-}
-
-DEFAULT_PRESET = {
-    "episodes": 1000,
-    "initial_hidden": 16,
-    "solved_threshold": 999999,  # Never auto-stop
-    "stagnation_score": 0,
-    "stagnation_std": 10.0,
-    "lr": 0.01,
-}
-
+from core.config_manager import ConfigManager
 
 def train_rl_agent(env_name, episodes=None):
-    # Get preset or use defaults
-    preset = ENV_PRESETS.get(env_name, DEFAULT_PRESET)
+    # Load from centralized configuration
+    full_config = ConfigManager.load_config()
+    presets = full_config.get("rl_agent", {})
+    preset = presets.get(env_name, presets.get("default", {}))
     if episodes is None:
         episodes = preset["episodes"]
 
