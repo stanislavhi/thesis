@@ -123,17 +123,18 @@ class AGIAgent(EvolutionaryAgent):
         if mean_sigma < 1e-9:
             return 'frozen'
 
+        # Check for divergence first: recent mean >> earlier baseline
+        # A stably high sigma (exploding activations) is overheated, not frozen
+        if len(self.sigma_history) >= 40:
+            baseline = np.mean(self.sigma_history[-40:-20])
+            if baseline > 1e-9 and mean_sigma > baseline * 5.0:
+                return 'overheated'
+
         cv = np.std(recent) / mean_sigma
 
         # Low coefficient of variation → sigma is flat → frozen
         if cv < 0.05:
             return 'frozen'
-
-        # Check for divergence: recent mean >> earlier baseline
-        if len(self.sigma_history) >= 40:
-            baseline = np.mean(self.sigma_history[-40:-20])
-            if baseline > 1e-9 and mean_sigma > baseline * 5.0:
-                return 'overheated'
 
         return 'healthy'
 
