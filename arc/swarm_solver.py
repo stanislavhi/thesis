@@ -30,8 +30,8 @@ from typing import List, Dict
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from core.chaos import LorenzGenerator
-from arc.dsl import DSL_OPS, apply_program
-from arc.evolver import ProgramEvolver, Program
+from arc.dsl import DSL_OPS, DSL_REGISTRY
+from arc.evolver import ProgramEvolver, Program, evaluate_test
 from arc.hybrid_solver import GridAnalyzer, GuidedProgramEvolver
 
 
@@ -82,9 +82,11 @@ class NoisyChannel:
         if z < 1.0 and result.steps:
             idx = np.random.randint(len(result.steps))
             name, params = result.steps[idx]
-            if params:
+            if params and name in DSL_REGISTRY:
+                _, n_params, param_ranges = DSL_REGISTRY[name]
                 p_idx = np.random.randint(len(params))
-                params[p_idx] = max(0, min(9, params[p_idx] + np.random.randint(-2, 3)))
+                lo, hi = param_ranges[p_idx] if p_idx < len(param_ranges) else (0, 9)
+                params[p_idx] = max(lo, min(hi, params[p_idx] + np.random.randint(-2, 3)))
 
         # Medium noise: drop a random op
         if z >= 1.0 and z < 2.0 and len(result.steps) > 1:
@@ -171,6 +173,7 @@ class SwarmSolver:
         # Phase 3: Parallel evolution with periodic sharing
         best_ever = Program([])
         best_ever.fitness = 0.0
+        gen = 0
 
         for gen in range(generations):
             # Evolve each specialist for one generation
@@ -230,27 +233,14 @@ class SwarmSolver:
                     print(f"\n>>> PERFECT SOLUTION at gen {gen}!", flush=True)
                 break
 
-        # Apply to test
-        predictions = []
-        for test_ex in task["test"]:
-            input_grid = np.array(test_ex["input"])
-            predicted = apply_program(input_grid, best_ever.steps)
-            predictions.append(predicted)
-
-        n_correct = 0
-        for i, test_ex in enumerate(task["test"]):
-            if "output" in test_ex:
-                expected = np.array(test_ex["output"])
-                if predictions[i].shape == expected.shape and np.array_equal(predictions[i], expected):
-                    n_correct += 1
-
-        test_acc = n_correct / len(task["test"]) if task["test"] and "output" in task["test"][0] else 0.0
+        # Apply to test and score
+        predictions, test_acc = evaluate_test(best_ever.steps, task["test"])
 
         return {
             "best_program": best_ever,
             "predictions": predictions,
             "train_fitness": best_ever.fitness,
             "test_accuracy": test_acc,
-            "generations_used": gen if best_ever.fitness >= 1.0 - 1e-6 else generations,
+            "generations_used": gen + 1 if best_ever.fitness >= 1.0 - 1e-6 else generations,
             "fitness_history": self.best_fitness_history,
         }

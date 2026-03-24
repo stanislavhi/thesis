@@ -270,7 +270,6 @@ def largest_object(grid: np.ndarray) -> np.ndarray:
 
 def hollow(grid: np.ndarray) -> np.ndarray:
     """Remove interior pixels — keep only the border of each object."""
-    from scipy import ndimage
     result = grid.copy()
     h, w = result.shape
     for r in range(1, h - 1):
@@ -347,7 +346,7 @@ def extend_pattern_v(grid: np.ndarray) -> np.ndarray:
     Tries sub-pattern lengths from h//2 down to 2.
     """
     h, w = grid.shape
-    for period in range(h // 2, 1, -1):
+    for period in range(2, h // 2 + 1):
         if h % period != 0:
             continue
         pattern = grid[:period, :]
@@ -418,7 +417,7 @@ DSL_OPS = [
     ("mirror_h", mirror_horizontal, 0, []),
     ("mirror_v", mirror_vertical, 0, []),
     # Spatial (new)
-    ("flood_fill", flood_fill, 3, [(0, 5), (0, 5), (1, 9)]),
+    ("flood_fill", flood_fill, 3, [(0, 29), (0, 29), (1, 9)]),
     ("gravity", gravity, 1, [(0, 3)]),
     ("draw_border", draw_border, 1, [(1, 9)]),
     ("fill_rect", fill_rect, 1, [(1, 9)]),

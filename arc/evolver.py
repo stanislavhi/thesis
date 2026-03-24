@@ -15,6 +15,29 @@ from core.chaos import LorenzGenerator
 from arc.dsl import DSL_OPS, DSL_REGISTRY, apply_program
 
 
+def evaluate_test(best_steps: list, test_examples: list) -> tuple:
+    """
+    Apply a program to test examples and compute accuracy.
+    Returns (predictions, test_accuracy).
+    """
+    predictions = []
+    for test_ex in test_examples:
+        input_grid = np.array(test_ex["input"])
+        predicted = apply_program(input_grid, best_steps)
+        predictions.append(predicted)
+
+    n_correct = 0
+    has_answers = test_examples and "output" in test_examples[0]
+    for i, test_ex in enumerate(test_examples):
+        if "output" in test_ex:
+            expected = np.array(test_ex["output"])
+            if predictions[i].shape == expected.shape and np.array_equal(predictions[i], expected):
+                n_correct += 1
+
+    test_accuracy = n_correct / len(test_examples) if has_answers else 0.0
+    return predictions, test_accuracy
+
+
 class Program:
     """A candidate program = sequence of (op_name, params) steps."""
 
@@ -98,7 +121,6 @@ class ProgramEvolver:
                 try:
                     predicted = apply_program(input_grid, prog.steps)
                 except Exception:
-                    prog.fitness = 0.0
                     continue
 
                 # Score: pixel-level accuracy (shape must match too)
