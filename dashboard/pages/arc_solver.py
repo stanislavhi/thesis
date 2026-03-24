@@ -10,7 +10,7 @@ import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
-from arc.data import (download_sample_tasks, list_local_tasks, download_task,
+from arc.data import (download_sample_tasks, list_local_tasks,
                        load_task, task_summary, grid_to_string, DATA_DIR)
 from arc.solver import solve_task
 from arc.hybrid_solver import solve_task_hybrid, GridAnalyzer
@@ -134,7 +134,8 @@ def render():
 
         # Results
         col_prog, col_fit, col_time = st.columns(3)
-        col_prog.metric("🧬 Best Program", str(result["best_program"]))
+        prog_str = str(result["best_program"])
+        col_prog.metric("🧬 Best Program", prog_str[:50] + "..." if len(prog_str) > 50 else prog_str)
         col_fit.metric("🎯 Train Fitness", f"{result['train_fitness']:.4f}")
         col_time.metric("⏱️ Time", f"{elapsed:.1f}s")
 
@@ -202,7 +203,3 @@ def _render_grid(grid: np.ndarray):
         paper_bgcolor="rgba(0,0,0,0)",
     )
     st.plotly_chart(fig, use_container_width=True, key=str(uuid.uuid4()))
-
-if __name__ == "__main__":
-    st.set_page_config(layout="wide")
-    render()

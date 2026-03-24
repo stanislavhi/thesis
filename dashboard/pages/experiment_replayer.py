@@ -54,10 +54,10 @@ def _render_rl_log(df, filename):
     col2.metric("🏆 Peak Score", f"{max_score:.0f}")
     col3.metric("🔄 Episodes", total_eps)
 
-    if "hidden_size" in df.columns:
+    if "hidden_size" in df.columns and len(df) > 0:
         final_hidden = df["hidden_size"].iloc[-1]
         col4.metric("🧠 Final Brain Size", int(final_hidden))
-    elif "agent_hidden_sizes" in df.columns:
+    elif "agent_hidden_sizes" in df.columns and len(df) > 0:
         col4.metric("👥 Agents", df["agent_hidden_sizes"].iloc[-1])
 
     # Animated playback
@@ -159,7 +159,7 @@ def _build_rl_chart(df, title):
 def _render_swarm_log(df, filename):
     """Render swarm training logs (epoch, loss)."""
     col1, col2 = st.columns(2)
-    col1.metric("📉 Final Loss", f"{df['loss'].iloc[-1]:.6f}")
+    col1.metric("📉 Final Loss", f"{df['loss'].iloc[-1]:.6f}" if len(df) > 0 else "N/A")
     col2.metric("🔄 Epochs", len(df))
 
     fig = go.Figure()
@@ -193,9 +193,3 @@ def _render_swarm_log(df, filename):
 
     with st.expander("📋 Raw Data"):
         st.dataframe(df, use_container_width=True)
-
-
-if __name__ == "__main__":
-    import streamlit as st
-    st.set_page_config(layout="wide")
-    render()

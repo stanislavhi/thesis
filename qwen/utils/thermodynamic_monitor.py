@@ -91,7 +91,7 @@ class ThermodynamicMonitor:
         
         # Chaos level from diagnostics
         chaos_level = 0.0
-        if 'chaos_applied' in diagnostics and diagnostics['chaos_applied']:
+        if diagnostics and 'chaos_applied' in diagnostics and diagnostics['chaos_applied']:
             chaos_level = min(1.0, abs(diagnostics.get('z_value', 0)) / 2)
         
         return ThermodynamicState(
@@ -227,5 +227,5 @@ def monitor_qwen_execution(model, input_ids, output_path="logs/qwen_thermodynami
         **diagnostics,
         'thermodynamic_state': vars(state),
         'heat_hotspots': heat_monitor.get_hotspots(),
-        'entropy_budget_remaining': 100 - sum(diagnostics['layer_diagnostics'][-5:]) if diagnostics else None
+        'entropy_budget_remaining': None
     }

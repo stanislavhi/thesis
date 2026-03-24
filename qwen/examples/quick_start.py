@@ -12,6 +12,7 @@ This example demonstrates:
 
 def train_example():
     """Example training session."""
+    import torch
     from qwen.models.qwen_thermodynamic import QwenThermodynamicModel, QwenThermodynamicTrainer
     
     print("=" * 70)

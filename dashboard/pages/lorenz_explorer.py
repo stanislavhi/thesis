@@ -141,9 +141,3 @@ def render():
         The chaotic nature ensures mutations are **deterministic but unpredictable**,
         providing structured exploration of the architecture space without random noise.
         """)
-
-
-if __name__ == "__main__":
-    import streamlit as st
-    st.set_page_config(layout="wide")
-    render()

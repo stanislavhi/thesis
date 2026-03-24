@@ -78,6 +78,8 @@ python3 qwen/main.py
 - **Stress tests**: Parametrize `env_name` and `hidden_size` — don't hardcode a single environment.
 - **LaTeX compilation**: `eval "$(/usr/libexec/path_helper)"` required for basictex PATH, then `bibtex main && pdflatex main && pdflatex main` (two passes for cross-refs and citations).
 - **Logs**: Plots go to `logs/`. Directory is git-ignored; use `git add -f logs/*.png` when committing plots.
+- **Qwen sub-project**: Has its own `requirements.txt` and `setup.py`. `InferenceConfig` is a standalone dataclass in `qwen/inference/qwen_thermodynamic_inferencer.py`, not a nested class. `LorenzGenerator` import is from `core.chaos`, not `physics.thermodynamics`.
+- **Dashboard pages**: Always imported via `dashboard/app.py` — no standalone `if __name__` blocks needed. All `.iloc[-1]` accesses must guard with `len(df) > 0`.
 
 ## Git
 - Do not add co-authored-by lines to commits
