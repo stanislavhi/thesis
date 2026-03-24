@@ -56,7 +56,8 @@ ENV/
 logs/
 outputs/
 checkpoints/
-models/
+models/*.pt
+models/*.pth
 results/
 plots/
 

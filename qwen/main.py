@@ -20,6 +20,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 import torch
 
@@ -45,10 +46,10 @@ def load_package():
             print(f"Installation failed: {e2}")
             print("Using fallback imports...")
             
-            # Fallback for testing
-            sys.path.insert(0, '/Users/stanislavhiznicenco/IdeaProjects/thesis')
-            from thesis.qwen.models.qwen_thermodynamic import (
-                QwenThermodynamicModel, 
+            # Fallback: add project root to path
+            sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+            from qwen.models.qwen_thermodynamic import (
+                QwenThermodynamicModel,
                 QwenThermodynamicTrainer
             )
             return True
@@ -111,11 +112,11 @@ def train(args):
 
 def infer(args):
     """Run inference with the trained model."""
-    from qwen.inference.qwen_thermodynamic_inferencer import QwenThermodynamicInferencer
-    
+    from qwen.inference.qwen_thermodynamic_inferencer import QwenThermodynamicInferencer, InferenceConfig
+
     # Load model
     checkpoint = torch.load(args.model, map_location='cpu')
-    
+
     model = QwenThermodynamicModel(
         vocab_size=checkpoint.get('vocab_size', 5000),
         hidden_dim=args.hidden_dim,
@@ -123,12 +124,12 @@ def infer(args):
         num_layers=args.num_layers,
         max_seq_len=args.max_seq_len
     )
-    
+
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
-    
+
     # Setup inferencer
-    config = QwenThermodynamicInferencer.InferenceConfig(
+    config = InferenceConfig(
         temperature=args.temperature,
         top_k=args.top_k,
         max_length=args.max_length

@@ -21,9 +21,9 @@ try:
 except ImportError:
     # Fallback for testing without installed package
     import sys
-    sys.path.insert(0, '/Users/stanislavhiznicenco/IdeaProjects/thesis')
-    from thesis.qwen.models.qwen_thermodynamic import QwenThermodynamicModel, QwenThermodynamicTrainer
-    from thesis.qwen.utils.thermodynamic_monitor import ThermodynamicMonitor
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+    from qwen.models.qwen_thermodynamic import QwenThermodynamicModel, QwenThermodynamicTrainer
+    from qwen.utils.thermodynamic_monitor import ThermodynamicMonitor
 
 
 def create_dummy_dataset(batch_size: int = 4, seq_len: int = 128):

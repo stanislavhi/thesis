@@ -44,13 +44,13 @@ def render():
 
     with col_run:
         if run_button:
-            _run_experiment(cmd, log_file, experiment)
+            _run_experiment(cmd, log_file, experiment, project_root)
         else:
             # Show most recent results if available
             _show_latest_results(logs_dir)
 
 
-def _run_experiment(cmd, log_file, experiment_name):
+def _run_experiment(cmd, log_file, experiment_name, project_root):
     """Run the experiment as a subprocess and stream results."""
     st.subheader(f"Training: {experiment_name}")
 
@@ -66,7 +66,7 @@ def _run_experiment(cmd, log_file, experiment_name):
         stderr=subprocess.STDOUT,
         text=True,
         bufsize=1,
-        cwd=os.path.dirname(cmd[1]),
+        cwd=project_root,
     )
 
     # Stream output
@@ -193,9 +193,3 @@ def _show_latest_results(logs_dir):
             st.dataframe(df, use_container_width=True)
     except Exception as e:
         st.warning(f"Couldn't load latest log: {e}")
-
-
-if __name__ == "__main__":
-    import streamlit as st
-    st.set_page_config(layout="wide")
-    render()

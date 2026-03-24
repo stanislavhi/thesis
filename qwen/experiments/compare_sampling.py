@@ -24,7 +24,7 @@ from typing import List, Dict
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 # Import our thermodynamic components
-from qwen.tests.test_qwen_thermodynamic import QwenThermodynamicModel
+from qwen.models.qwen_thermodynamic import QwenThermodynamicModel
 from qwen.inference.qwen_thermodynamic_inferencer import (
     QwenThermodynamicInferencer, 
     InferenceConfig,

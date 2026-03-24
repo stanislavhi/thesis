@@ -42,7 +42,7 @@ def render():
     # Heat capacity (Schottky)
     if temperature > 1e-9:
         x_cap = barrier / (k_B * temperature)
-        C_V = k_B * (x_cap ** 2) * np.exp(x_cap) / (1 + np.exp(x_cap)) ** 2
+        C_V = max(1e-12, k_B * (x_cap ** 2) * np.exp(x_cap) / (1 + np.exp(x_cap)) ** 2)
     else:
         C_V = 1e-9
 
@@ -167,9 +167,3 @@ def render():
         | ln(2)³ | {ln2**3:.6f} |
         | Bound valid % | {valid_pct:.1f}% |
         """)
-
-
-if __name__ == "__main__":
-    import streamlit as st
-    st.set_page_config(layout="wide")
-    render()
