@@ -51,5 +51,21 @@
         "solved_threshold": 200,
         "lr": 0.005
     }
+  },
+  "agi_gauntlet": {
+    "population_size": 20,
+    "num_elites": 5,
+    "tournament_k": 3,
+    "generations_phase1": 150,
+    "generations_phase3": 150,
+    "hidden_dim": 64,
+    "sleep_epochs": 200,
+    "curiosity_weight": 0.1,
+    "salience_threshold": 2.0,
+    "memory_capacity": 20000,
+    "brain_lr": 0.01,
+    "wm_lr": 0.005,
+    "base_mutation_rate": 0.5,
+    "max_steps": 300
   }
 }

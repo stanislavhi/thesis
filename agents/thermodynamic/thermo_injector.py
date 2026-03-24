@@ -101,9 +101,15 @@ class ThermodynamicInjector(Mutator):
         op = 'additive_noise' if cv < LOW_CV_THRESHOLD else 'targeted_dropout'
         return op
 
-    def mutate(self, agent: nn.Module, status: str = None) -> nn.Module:
+    def mutate(self, agent: nn.Module, status: str = None,
+               operator_override: str = None) -> nn.Module:
         """
         Mutates the agent using the thermodynamically correct operator.
+
+        Args:
+            operator_override: Force a specific operator ('additive_noise' or
+                'targeted_dropout'). Use this for pure ES contexts where there
+                is no gradient recovery to revive zeroed neurons.
         """
         # 1. Diagnose
         if status is None:
@@ -112,9 +118,12 @@ class ThermodynamicInjector(Mutator):
             else:
                 status = 'healthy'
 
-        # 2. Select operator based on C_V
+        # 2. Select operator
         cv = self._estimate_cv(agent)
-        operator = 'additive_noise' if cv < LOW_CV_THRESHOLD else 'targeted_dropout'
+        if operator_override:
+            operator = operator_override
+        else:
+            operator = 'additive_noise' if cv < LOW_CV_THRESHOLD else 'targeted_dropout'
         magnitude = self._get_magnitude(status, cv)
         chaos_val = self.chaos_gen.get_perturbation()
 
