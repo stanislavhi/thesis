@@ -115,9 +115,11 @@ def run_swarm_resilience_trial(seed, use_thermo=True):
                 status = agent.get_thermodynamic_status()
                 if status == 'frozen':
                     print(f"      [!] Agent {agent.agent_id} FROZEN. Injecting Chaos!")
-                    # We mutate the agent.brain (EvolvingLLMAgent)
                     agent.brain = injector.mutate(agent.brain, status='frozen')
-                    optimizer = optim.Adam(all_params, lr=0.002) # Reset optimizer
+                    # Rebuild param list since mutate may return a new module
+                    all_params = list(agent_a.parameters()) + list(agent_b.parameters()) + \
+                                 list(agent_c.parameters()) + list(aggregator.parameters())
+                    optimizer = optim.Adam(all_params, lr=0.002)
                     
     return acc_history
 

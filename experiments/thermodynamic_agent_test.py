@@ -13,6 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
 from agents.thermodynamic.thermo_injector import ThermodynamicInjector
 from core.chaos import LorenzGenerator
+from experiments.utils import reinforce_update
 
 def run_thermo_trial(seed, use_thermo_injection=True, max_episodes=300):
     torch.manual_seed(seed)
@@ -62,23 +63,7 @@ def run_thermo_trial(seed, use_thermo_injection=True, max_episodes=300):
         sigma_history.append(agent.current_sigma)
         
         # --- REINFORCE Update ---
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-        
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-        
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
             
         # --- Thermodynamic Injection ---
         # Only inject if enabled AND agent is struggling (low score) OR frozen (low sigma)

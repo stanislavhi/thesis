@@ -12,35 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 
 from core.chaos import LorenzGenerator
 from agents.rl_policy import EvolvingPolicy, RLChaosInjector
-
-
-class EnvironmentShockWrapper(gym.Wrapper):
-    """
-    Wraps an environment and can dynamically change its physics mid-training.
-    Simulates a sudden distributional shift that the agent must adapt to.
-    """
-    def __init__(self, env, shock_mode="swap_actions"):
-        super().__init__(env)
-        self.shock_active = False
-        self.shock_mode = shock_mode
-
-    def activate_shock(self):
-        self.shock_active = True
-
-    def step(self, action):
-        if self.shock_active:
-            if self.shock_mode == "swap_actions":
-                # Swap left/right — agent's learned policy is now backwards
-                action = 1 - action
-            elif self.shock_mode == "invert_rewards":
-                obs, reward, done, truncated, info = self.env.step(action)
-                return obs, -reward, done, truncated, info
-            elif self.shock_mode == "noisy_obs":
-                obs, reward, done, truncated, info = self.env.step(action)
-                noise = np.random.normal(0, 0.5, size=obs.shape)
-                return obs + noise, reward, done, truncated, info
-
-        return self.env.step(action)
+from experiments.utils import reinforce_update, EnvironmentShockWrapper
 
 
 def run_transfer_trial(seed, use_chaos=True, shock_episode=150, max_episodes=400,
@@ -95,23 +67,7 @@ def run_transfer_trial(seed, use_chaos=True, shock_episode=150, max_episodes=400
         history.append(total_reward)
 
         # REINFORCE
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
 
         # Chaos Injection — only if enabled
         if use_chaos and episode > 20 and avg_score < 50:

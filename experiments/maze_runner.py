@@ -146,17 +146,12 @@ def run_maze_experiment():
         best_fitness = fitnesses[sorted_indices[0]]
         best_fitness_history.append(best_fitness)
         
-        # 3. Reproduction & Mutation
-        # STABILITY FIX: Implement strict elitism and seeding
-        next_population = [copy.deepcopy(elite) for elite in elites] # Elites carry over unchanged
-        
-        # The rest of the population are mutated children of the BEST elite
-        best_elite = elites[0]
-        
+        # 3. Reproduction & Mutation (elitism + tournament-style parent selection)
+        next_population = [copy.deepcopy(elite) for elite in elites]
+
         for i in range(population_size - num_elites):
-            child = copy.deepcopy(best_elite)
-            
-            # Mutate the child
+            parent = elites[i % num_elites]
+            child = copy.deepcopy(parent)
             child = injector.mutate(child)
             next_population.append(child)
             

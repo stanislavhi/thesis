@@ -27,6 +27,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
 from agents.thermodynamic.thermo_injector import ThermodynamicInjector
 from core.chaos import LorenzGenerator
+from experiments.utils import reinforce_update, smooth_with_x
 
 def inflict_targeted_damage(agent):
     """Completely zeroes out the weights of a specific layer."""
@@ -84,23 +85,7 @@ def run_lunar_lander_trial(seed, use_thermo_injection=True, damage_episode=500, 
         history.append(total_reward)
 
         # --- REINFORCE Update ---
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
 
         # --- Thermodynamic Injection ---
         if use_thermo_injection and episode > damage_episode:
@@ -135,16 +120,13 @@ def main():
     thermo_mean = np.mean(thermo_results, axis=0)
     static_mean = np.mean(static_results, axis=0)
 
-    def smooth(y, box_pts=50):
-        box = np.ones(box_pts)/box_pts
-        y_smooth = np.convolve(y, box, mode='valid')
-        return y_smooth
-
     # Plotting
     plt.figure(figsize=(12, 6))
-    plt.plot(smooth(thermo_mean), color='blue', linewidth=2, label='Thermodynamic Agent (Recovers)')
-    plt.plot(smooth(static_mean), color='red', linewidth=2, linestyle='--', label='Static Agent (Damaged)')
-    
+    x_t, y_t = smooth_with_x(thermo_mean, box_pts=50)
+    x_s, y_s = smooth_with_x(static_mean, box_pts=50)
+    plt.plot(x_t, y_t, color='blue', linewidth=2, label='Thermodynamic Agent (Recovers)')
+    plt.plot(x_s, y_s, color='red', linewidth=2, linestyle='--', label='Static Agent (Damaged)')
+
     plt.axvline(x=500, color='black', linestyle=':', linewidth=2, label='Targeted Damage (Output Layer Zeroed)')
     
     plt.xlabel('Episode')

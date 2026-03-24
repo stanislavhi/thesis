@@ -26,23 +26,11 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
+from experiments.utils import reinforce_update, smooth, InvertibleEnv
 
-class InvertibleAcrobot(gym.Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.inverted = False
-        
-    def step(self, action):
-        if self.inverted:
-            # Acrobot has 3 actions: 0 (left), 1 (none), 2 (right).
-            # Invert: 0 becomes 2, 2 becomes 0, 1 stays 1.
-            if action == 0: action = 2
-            elif action == 2: action = 0
-            
-        return self.env.step(action)
-        
-    def invert(self):
-        self.inverted = not self.inverted
+class InvertibleAcrobot(InvertibleEnv):
+    """Acrobot-specific alias — InvertibleEnv handles 3-action mapping automatically."""
+    pass
 
 class ProspectiveInjector:
     def __init__(self, strategy="additive", base_rate=0.1):
@@ -147,29 +135,9 @@ def run_trial(seed, strategy, max_episodes=800, shift_episode=250):
         
         if not log_probs or crashed:
             continue
-            
-        # REINFORCE Update
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-        
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-        
-        optimizer.zero_grad()
-        if policy_loss:
-            loss_tensor = torch.stack(policy_loss).sum()
-            if not torch.isnan(loss_tensor):
-                loss_tensor.backward()
-                # ESSENTIAL: gradient clipping prevents explosion
-                torch.nn.utils.clip_grad_norm_(agent.parameters(), 1.0)
-                optimizer.step()
+
+        # REINFORCE Update (with gradient clipping to prevent explosion)
+        reinforce_update(log_probs, rewards, optimizer, clip_grad=1.0)
             
         # Thermodynamic Intervention
         if injector and episode > 20 and (episode - last_injection_ep) >= injection_cooldown:
@@ -190,10 +158,6 @@ def run_trial(seed, strategy, max_episodes=800, shift_episode=250):
                 last_injection_ep = episode
             
     env.close()
-    
-    while len(history) < max_episodes:
-        history.append(-500)
-
     return history
 
 def main():
@@ -218,10 +182,6 @@ def main():
     # Plotting
     plt.figure(figsize=(12, 6))
     
-    def smooth(y, box_pts=20):
-        box = np.ones(box_pts)/box_pts
-        return np.convolve(y, box, mode='valid')
-
     styles = {
         "static":   {"color": "red",   "linestyle": "--", "linewidth": 2.5, "alpha": 0.9},
         "additive": {"color": "blue",  "linestyle": "-",  "linewidth": 2.5, "alpha": 0.9},

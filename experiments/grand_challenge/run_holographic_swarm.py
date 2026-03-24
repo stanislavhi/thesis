@@ -84,7 +84,7 @@ def train_holographic_swarm(env_name, episodes=None):
 
         # Logging
         agent_sizes = swarm.get_agent_sizes_string()
-        log_data.append(f"{episode},{total_reward},{avg_score},{agent_sizes}")
+        log_data.append(f'{episode},{total_reward},{avg_score},"{agent_sizes}"')
 
         # Chaos Injection / Mutation logic
         if episode > 20 and avg_score < config["solved_threshold"] * 0.5 and np.std(scores) < 5.0:
