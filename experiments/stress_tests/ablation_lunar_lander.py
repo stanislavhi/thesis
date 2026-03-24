@@ -29,52 +29,7 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
-
-# We need a custom Mutator for this ablation
-class AblationInjector:
-    def __init__(self, strategy="additive", base_rate=0.05):
-        self.strategy = strategy
-        self.base_rate = base_rate
-        
-    def mutate(self, agent: ThermodynamicAgent) -> ThermodynamicAgent:
-        status = agent.get_thermodynamic_status()
-        
-        if status == 'frozen':
-            # print(f"   [{self.strategy.upper()}] Triggered at ep.")
-            
-            if self.strategy == "additive":
-                # The old "Sledgehammer" approach
-                magnitude = self.base_rate * 5.0
-                with torch.no_grad():
-                    for param in agent.parameters():
-                        noise = torch.randn_like(param) * magnitude
-                        param.add_(noise)
-                        
-            elif self.strategy == "dropout":
-                # The "Pruning/Re-routing" approach
-                # Find the neurons with the lowest variance and zero their incoming weights
-                with torch.no_grad():
-                    # Look at Layer 1 weights (hidden_dim, input_dim)
-                    weights = agent.layer1.weight
-                    # Calculate variance of weights going into each hidden neuron
-                    variances = torch.var(weights, dim=1)
-                    
-                    # Find bottom 20% of neurons
-                    k = int(weights.shape[0] * 0.2)
-                    _, indices = torch.topk(variances, k, largest=False)
-                    
-                    # Zero out the weights for these "dead" neurons to force new connections
-                    weights[indices] = 0.0
-                    if agent.layer1.bias is not None:
-                        agent.layer1.bias[indices] = 0.0
-        
-        return agent
-
-def inflict_damage(policy, damage_ratio=0.5):
-    with torch.no_grad():
-        for param in policy.parameters():
-            mask = torch.rand_like(param) > damage_ratio
-            param.mul_(mask.float())
+from experiments.utils import reinforce_update, inflict_brain_damage, smooth, AblationInjector
 
 def run_trial(seed, strategy, damage_episode=500, max_episodes=1500):
     torch.manual_seed(seed)
@@ -97,7 +52,7 @@ def run_trial(seed, strategy, damage_episode=500, max_episodes=1500):
 
     for episode in range(max_episodes):
         if episode == damage_episode:
-            inflict_damage(agent, damage_ratio=0.5)
+            inflict_brain_damage(agent, damage_ratio=0.5)
             optimizer = optim.Adam(agent.parameters(), lr=0.001)
             scores.clear()
 
@@ -124,23 +79,7 @@ def run_trial(seed, strategy, damage_episode=500, max_episodes=1500):
         history.append(total_reward)
 
         # REINFORCE Update
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
 
         # Thermodynamic Intervention
         if injector and episode > damage_episode:
@@ -174,10 +113,6 @@ def main():
     # Plotting
     plt.figure(figsize=(14, 7))
     
-    def smooth(y, box_pts=50):
-        box = np.ones(box_pts)/box_pts
-        return np.convolve(y, box, mode='valid')
-
     colors = {"static": "red", "additive": "blue", "dropout": "green"}
     labels = {
         "static": "Static (No Intervention)",
@@ -187,7 +122,7 @@ def main():
     
     for strategy, results in strategies.items():
         mean_res = np.mean(results, axis=0)
-        plt.plot(smooth(mean_res), color=colors[strategy], linewidth=2, label=labels[strategy])
+        plt.plot(smooth(mean_res, 50), color=colors[strategy], linewidth=2, label=labels[strategy])
 
     plt.axvline(x=500, color='black', linestyle=':', linewidth=2, label='50% Brain Damage')
     

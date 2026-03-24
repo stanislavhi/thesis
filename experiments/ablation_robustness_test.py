@@ -28,51 +28,7 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
-
-class InvertibleEnv(gym.Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.inverted = False
-        
-    def step(self, action):
-        if self.inverted:
-            action = 1 - action 
-        return self.env.step(action)
-        
-    def invert(self):
-        self.inverted = not self.inverted
-
-class AblationInjector:
-    def __init__(self, strategy="additive", base_rate=0.05):
-        self.strategy = strategy
-        self.base_rate = base_rate
-        
-    def mutate(self, agent: ThermodynamicAgent) -> ThermodynamicAgent:
-        status = agent.get_thermodynamic_status()
-        
-        # We also trigger on simple low score here since CartPole inversion 
-        # might not immediately collapse sigma if it just happily falls over
-        if status == 'frozen':
-            if self.strategy == "additive":
-                # The Sledgehammer approach
-                magnitude = self.base_rate * 5.0
-                with torch.no_grad():
-                    for param in agent.parameters():
-                        noise = torch.randn_like(param) * magnitude
-                        param.add_(noise)
-                        
-            elif self.strategy == "dropout":
-                # The Pruning approach
-                with torch.no_grad():
-                    weights = agent.layer1.weight
-                    variances = torch.var(weights, dim=1)
-                    k = max(1, int(weights.shape[0] * 0.2)) # at least 1 neuron
-                    _, indices = torch.topk(variances, k, largest=False)
-                    weights[indices] = 0.0
-                    if agent.layer1.bias is not None:
-                        agent.layer1.bias[indices] = 0.0
-        
-        return agent
+from experiments.utils import reinforce_update, smooth, InvertibleEnv, AblationInjector
 
 def run_trial(seed, strategy, env_name="CartPole-v1", max_episodes=400):
     torch.manual_seed(seed)
@@ -102,7 +58,8 @@ def run_trial(seed, strategy, env_name="CartPole-v1", max_episodes=400):
             env.invert()
             scores.clear()
             # Force a status reset check
-            agent.sigma_history = []
+            if hasattr(agent, 'sigma_history'):
+                agent.sigma_history = []
         
         state, _ = env.reset(seed=seed + episode)
         log_probs = []
@@ -128,23 +85,7 @@ def run_trial(seed, strategy, env_name="CartPole-v1", max_episodes=400):
         history.append(total_reward)
         
         # REINFORCE Update
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-        
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-        
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
             
         # Thermodynamic Intervention
         if injector and episode > 20:
@@ -184,10 +125,6 @@ def main():
     # Plotting
     plt.figure(figsize=(14, 7))
     
-    def smooth(y, box_pts=20):
-        box = np.ones(box_pts)/box_pts
-        return np.convolve(y, box, mode='valid')
-
     colors = {"static": "red", "additive": "blue", "dropout": "green"}
     labels = {
         "static": "Static (No Intervention)",

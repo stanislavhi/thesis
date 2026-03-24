@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 
 from agents.rl_policy import EvolvingPolicy, RLChaosInjector
 from core.chaos import LorenzGenerator
+from experiments.utils import reinforce_update
 
 class NoisyEnvWrapper(gym.Wrapper):
     """
@@ -75,23 +76,7 @@ def run_noise_trial(noise_level, seed=42):
         history.append(total_reward)
         
         # REINFORCE
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-        
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-        
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
             
         # Mutate if stagnant
         if episode > 20 and avg_score < 100 and np.std(scores) < 5.0:
@@ -114,10 +99,10 @@ def main():
         for seed in [42, 101, 999]:
             trials.append(run_noise_trial(noise, seed))
         
-        # Average
-        max_len = max(len(t) for t in trials)
-        padded = np.array([t + [t[-1]]*(max_len-len(t)) for t in trials])
-        results[noise] = np.mean(padded, axis=0)
+        # Truncate to shortest trial length to avoid padding artifacts
+        min_len = min(len(t) for t in trials)
+        truncated = np.array([t[:min_len] for t in trials])
+        results[noise] = np.mean(truncated, axis=0)
         
     # Plot
     plt.figure(figsize=(10, 6))

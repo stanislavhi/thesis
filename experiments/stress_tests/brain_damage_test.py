@@ -13,21 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from core.chaos import LorenzGenerator
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
 from agents.thermodynamic.thermo_injector import ThermodynamicInjector
-
-
-def inflict_brain_damage(policy, damage_ratio=0.5):
-    """
-    Randomly zeroes out a fraction of all weights in the policy network.
-    This simulates catastrophic neural damage.
-    Returns the number of parameters zeroed.
-    """
-    total_zeroed = 0
-    with torch.no_grad():
-        for param in policy.parameters():
-            mask = torch.rand_like(param) > damage_ratio
-            param.mul_(mask.float())
-            total_zeroed += (~mask).sum().item()
-    return int(total_zeroed)
+from experiments.utils import reinforce_update, inflict_brain_damage
 
 
 def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episodes=400,
@@ -87,23 +73,7 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
         history.append(total_reward)
 
         # REINFORCE
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
 
         # Thermodynamic chaos injection — uses Operator Selection Rule
         if use_chaos and episode > 20 and len(scores) == scores.maxlen:
@@ -123,8 +93,8 @@ def run_brain_damage_trial(seed, use_chaos=True, damage_episode=150, max_episode
             # Environment-adaptive stagnation threshold
             stagnation_threshold = 100 if env_name == "CartPole-v1" else -100
 
-            # Only inject if truly frozen AND not recovering
-            if status == 'frozen' and avg_score < stagnation_threshold and np.std(scores) < 10.0 and not is_recovering:
+            # Inject if frozen and underperforming — recovery trend alone shouldn't block mutation
+            if status == 'frozen' and avg_score < stagnation_threshold:
                 policy = injector.mutate(policy, status=status)
                 optimizer = optim.Adam(policy.parameters(), lr=0.01)
                 scores.clear()

@@ -13,19 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from core.chaos import LorenzGenerator
 from agents.rl_policy import EvolvingPolicy, RLChaosInjector
-
-class InvertibleEnv(gym.Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.inverted = False
-        
-    def step(self, action):
-        if self.inverted:
-            action = 1 - action 
-        return self.env.step(action)
-        
-    def invert(self):
-        self.inverted = not self.inverted
+from experiments.utils import reinforce_update, InvertibleEnv
 
 def run_trial(seed, use_chaos=True, env_name="CartPole-v1", max_episodes=400):
     torch.manual_seed(seed)
@@ -77,23 +65,7 @@ def run_trial(seed, use_chaos=True, env_name="CartPole-v1", max_episodes=400):
         history.append(total_reward)
         
         # Update Policy
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-        
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-        
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
             
         # Chaos Injection
         if use_chaos and episode > 20 and avg_score < 50:

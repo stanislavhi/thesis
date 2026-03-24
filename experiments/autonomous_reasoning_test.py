@@ -81,7 +81,7 @@ def run_homeostasis_trial(seed, use_evolution=True, steps=100):
             # We check for 'frozen' status. 
             # Note: The agent's internal history buffer needs to fill up first.
             if status == 'frozen':
-                print(f"      [Step {step}] ⚠️  Freezing detected (σ={current_sigma:.4f}). Injecting Chaos!")
+                print(f"      [Step {step}] Freezing detected (sigma={current_sigma:.4f}). Injecting Chaos!")
                 agent = injector.mutate(agent)
                 
     return sigma_history, diversity_history

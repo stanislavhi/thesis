@@ -14,6 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from core.chaos import LorenzGenerator
 from agents.rl_policy import EvolvingPolicy, RLChaosInjector
 from core.config_manager import ConfigManager
+from experiments.utils import reinforce_update
 
 def train_rl_agent(env_name, episodes=None):
     # Load from centralized configuration
@@ -75,35 +76,7 @@ def train_rl_agent(env_name, episodes=None):
         avg_score = np.mean(scores)
 
         # Update Policy (REINFORCE)
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-
-        optimizer.zero_grad()
-        grad_norm = 0.0
-        if policy_loss:
-            policy_loss = torch.stack(policy_loss).sum()
-            policy_loss.backward()
-
-            # Calculate Gradient Norm (Entropy Production Proxy)
-            total_norm = 0.0
-            for p in policy.parameters():
-                if p.grad is not None:
-                    param_norm = p.grad.data.norm(2)
-                    total_norm += param_norm.item() ** 2
-            grad_norm = total_norm ** 0.5
-
-            optimizer.step()
+        grad_norm = reinforce_update(log_probs, rewards, optimizer)
 
         # Log: Episode, Score, AvgScore, HiddenSize, EntropyProduction (GradNorm)
         log_data.append(f"{episode},{total_reward},{avg_score},{policy.net[0].out_features},{grad_norm}")

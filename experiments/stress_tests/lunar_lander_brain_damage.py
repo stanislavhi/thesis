@@ -33,13 +33,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from agents.thermodynamic.thermo_agent import ThermodynamicAgent
 from agents.thermodynamic.thermo_injector import ThermodynamicInjector
 from core.chaos import LorenzGenerator
-
-def inflict_brain_damage(policy, damage_ratio=0.5):
-    """Randomly zeroes out a fraction of all weights in the policy network."""
-    with torch.no_grad():
-        for param in policy.parameters():
-            mask = torch.rand_like(param) > damage_ratio
-            param.mul_(mask.float())
+from experiments.utils import reinforce_update, inflict_brain_damage
 
 def run_lunar_lander_trial(seed, use_thermo_injection=True, damage_episode=500, max_episodes=1500):
     torch.manual_seed(seed)
@@ -64,7 +58,6 @@ def run_lunar_lander_trial(seed, use_thermo_injection=True, damage_episode=500, 
         if episode == damage_episode:
             inflict_brain_damage(agent, damage_ratio=0.5)
             print(f"   [Seed {seed}] BRAIN DAMAGE inflicted at ep {episode}.")
-            print(f"   [Debug] Current Sigma: {agent.current_sigma:.6f}") # Debug print
             optimizer = optim.Adam(agent.parameters(), lr=0.001)
             scores.clear()
 
@@ -94,23 +87,7 @@ def run_lunar_lander_trial(seed, use_thermo_injection=True, damage_episode=500, 
         sigma_history.append(agent.current_sigma)
 
         # --- REINFORCE Update ---
-        discounted_rewards = []
-        R = 0
-        for r in reversed(rewards):
-            R = r + 0.99 * R
-            discounted_rewards.insert(0, R)
-        discounted_rewards = torch.tensor(discounted_rewards)
-        if len(discounted_rewards) > 1:
-            discounted_rewards = (discounted_rewards - discounted_rewards.mean()) / (discounted_rewards.std() + 1e-9)
-
-        policy_loss = []
-        for log_prob, R in zip(log_probs, discounted_rewards):
-            policy_loss.append(-log_prob * R)
-
-        optimizer.zero_grad()
-        if policy_loss:
-            torch.stack(policy_loss).sum().backward()
-            optimizer.step()
+        reinforce_update(log_probs, rewards, optimizer)
 
         # --- Thermodynamic Injection ---
         if use_thermo_injection and episode > damage_episode:
