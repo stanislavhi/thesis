@@ -4,13 +4,11 @@ thermodynamic program synthesis.
 """
 import sys
 import os
-import numpy as np
 from typing import Optional
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-from arc.dsl import apply_program
-from arc.evolver import ProgramEvolver, Program
+from arc.evolver import ProgramEvolver, Program, evaluate_test
 from arc.data import load_task, download_task, grid_to_string, task_summary
 
 
@@ -38,23 +36,8 @@ def solve_task(task: dict, generations: int = 200, population_size: int = 80,
     evolver = ProgramEvolver(population_size=population_size, max_program_len=6)
     best = evolver.evolve(train_examples, generations=generations, verbose=verbose)
 
-    # Apply best program to test inputs
-    predictions = []
-    for test_ex in test_examples:
-        input_grid = np.array(test_ex["input"])
-        predicted = apply_program(input_grid, best.steps)
-        predictions.append(predicted)
-
-    # Check test accuracy (if answers available)
-    test_accuracy = 0.0
-    n_correct = 0
-    for i, test_ex in enumerate(test_examples):
-        if "output" in test_ex:
-            expected = np.array(test_ex["output"])
-            if predictions[i].shape == expected.shape and np.array_equal(predictions[i], expected):
-                n_correct += 1
-    if test_examples and "output" in test_examples[0]:
-        test_accuracy = n_correct / len(test_examples)
+    # Apply best program to test inputs and score
+    predictions, test_accuracy = evaluate_test(best.steps, test_examples)
 
     return {
         "best_program": best,

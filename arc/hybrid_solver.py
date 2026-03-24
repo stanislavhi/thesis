@@ -12,8 +12,8 @@ from typing import List, Tuple
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-from arc.dsl import DSL_OPS, apply_program
-from arc.evolver import ProgramEvolver, Program
+from arc.dsl import DSL_OPS
+from arc.evolver import ProgramEvolver, Program, evaluate_test
 
 
 class GridAnalyzer:
@@ -271,22 +271,8 @@ def solve_task_hybrid(task: dict, generations: int = 300, population_size: int =
     evolver.set_op_weights(op_weights)
     best = evolver.evolve(train_examples, generations=generations, verbose=verbose)
 
-    # Phase 3: Apply to test
-    predictions = []
-    for test_ex in test_examples:
-        input_grid = np.array(test_ex["input"])
-        predicted = apply_program(input_grid, best.steps)
-        predictions.append(predicted)
-
-    # Score
-    n_correct = 0
-    for i, test_ex in enumerate(test_examples):
-        if "output" in test_ex:
-            expected = np.array(test_ex["output"])
-            if predictions[i].shape == expected.shape and np.array_equal(predictions[i], expected):
-                n_correct += 1
-
-    test_accuracy = n_correct / len(test_examples) if test_examples and "output" in test_examples[0] else 0.0
+    # Phase 3: Apply to test and score
+    predictions, test_accuracy = evaluate_test(best.steps, test_examples)
 
     return {
         "best_program": best,

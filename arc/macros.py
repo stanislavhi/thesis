@@ -8,7 +8,7 @@ This lets the system literally invent new operations.
 import sys
 import os
 import numpy as np
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
@@ -46,9 +46,10 @@ class MacroLibrary:
         self.max_macros = max_macros
         self.macros: List[Macro] = []
         self._counter = 0
+        self._registered_names: List[str] = []
 
     def extract_macro(self, program_steps: List[Tuple[str, list]],
-                      start: int, end: int, fitness: float) -> str:
+                      start: int, end: int, fitness: float) -> Optional[str]:
         """
         Extract a subsequence from a program and register it as a macro.
         Returns the macro name.
@@ -70,7 +71,8 @@ class MacroLibrary:
         if len(self.macros) >= self.max_macros:
             # Evict least-used macro
             self.macros.sort(key=lambda m: m.times_used)
-            self.macros.pop(0)
+            evicted = self.macros.pop(0)
+            self._unregister_macro(evicted.name)
 
         self.macros.append(macro)
 
@@ -84,9 +86,26 @@ class MacroLibrary:
         def macro_fn(grid):
             return macro.apply(grid)
 
-        # Add to globals
         DSL_OPS.append((macro.name, macro_fn, 0, []))
         DSL_REGISTRY[macro.name] = (macro_fn, 0, [])
+        self._registered_names.append(macro.name)
+
+    def _unregister_macro(self, name: str):
+        """Remove a macro from the DSL registry."""
+        DSL_REGISTRY.pop(name, None)
+        for i, (op_name, _, _, _) in enumerate(DSL_OPS):
+            if op_name == name:
+                DSL_OPS.pop(i)
+                break
+        if name in self._registered_names:
+            self._registered_names.remove(name)
+
+    def unregister_all(self):
+        """Remove all macros from the DSL registry. Call between solver runs."""
+        for name in list(self._registered_names):
+            self._unregister_macro(name)
+        self.macros.clear()
+        self._registered_names.clear()
 
     def _steps_equal(self, a, b):
         if len(a) != len(b):
