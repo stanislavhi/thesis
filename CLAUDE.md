@@ -46,7 +46,7 @@ python3 qwen/main.py
 - **core/** — ABCs (`EvolutionaryAgent`, `Mutator`), chaos engine, stagnation monitor, config manager, holographic scaler
 - **agents/** — RL policy (REINFORCE + mutation), swarm (holographic channel), thermodynamic (σ-based health), LLM cortex (LM Studio)
 - **agi/** — Hippocampus (memory), WorldModel (prediction + curiosity), HierarchicalController (manager→worker), GauntletMaze (15x15, 8D obs)
-- **arc/** — DSL grid operations, genetic ProgramEvolver, heuristic GridAnalyzer, self-inventing macros
+- **arc/** — DSL grid operations (30 primitives), genetic ProgramEvolver, heuristic GridAnalyzer, self-inventing macros, multi-specialist SwarmSolver. Shared `evaluate_test()` in `evolver.py` for test scoring.
 - **physics/** — Milstein ODE solver, Schnakenberg entropy, double-well/Kramers substrates, N-state simplex dynamics
 - **qwen/** — Thermodynamic-aware Qwen LLM inference with chaos-driven sampling (separate `setup.py`)
 - **experiments/** — Training scripts, stress tests, ablations, prospective operator test. Shared utilities in `experiments/utils.py`
@@ -71,6 +71,10 @@ python3 qwen/main.py
 - **Stochastic physics tests**: Use multi-trajectory averaging (n_runs=10) to reduce sampling variance. Single-trajectory results are unreliable at moderate T.
 - **N-state dynamics**: Perturbation must use adversarial direction `(p-q)/||p-q||`. Never use `A @ |dq/dt|` — it gets absorbed by simplex renormalization. N=2 simplex gradient is half the scalar gradient; scale eta by 2 for equivalence.
 - **α_crit verification**: Test transient behavior near fixed point (small perturbation, short time). On compact domains, boundary effects force global convergence for all α — asymptotic tests are wrong.
+- **Shared arc/ test scoring**: Use `arc.evolver.evaluate_test(best_steps, test_examples)` for test prediction + accuracy. Don't duplicate the predict-and-score loop in each solver.
+- **Macro cleanup**: `MacroLibrary` mutates global `DSL_OPS`/`DSL_REGISTRY`. Call `library.unregister_all()` between solver runs to prevent stale macro accumulation.
+- **DSL param ranges**: Must match actual function signatures. `flood_fill` row/col ranges should cover max grid size (30). Don't use arbitrary small caps.
+- **Pattern detection order**: When searching for repeating periods, iterate smallest-first (`range(2, h//2+1)`) to find the true fundamental period, not a multiple.
 - **Stress tests**: Parametrize `env_name` and `hidden_size` — don't hardcode a single environment.
 - **LaTeX compilation**: `eval "$(/usr/libexec/path_helper)"` required for basictex PATH, then `bibtex main && pdflatex main && pdflatex main` (two passes for cross-refs and citations).
 - **Logs**: Plots go to `logs/`. Directory is git-ignored; use `git add -f logs/*.png` when committing plots.
