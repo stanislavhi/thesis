@@ -18,15 +18,17 @@ python3 agi/run_gauntlet.py                                      # AGI maze gaun
 python3 arc/solver.py --task 0d3d703e --generations 200          # ARC-AGI solver
 
 # Tests (standalone scripts, no pytest)
-python3 physics/tests/test_bound.py                              # Core bound (20 regimes)
+python3 physics/tests/test_bound.py                              # Core bound (10/10 regimes, Milstein)
+python3 physics/core/dynamics_n_state.py                         # N-state α_crit universality
 python3 physics/tests/test_bound_deterministic.py
 python3 experiments/test_robustness.py                           # Chaotic vs static
 python3 agi/test_gauntlet.py                                     # AGI module smoke tests (6 tests)
 
 # Stress tests
-python3 experiments/stress_tests/brain_damage_test.py            # 50% weight destruction
+python3 experiments/stress_tests/brain_damage_test.py            # 50% weight destruction (CartPole + LunarLander)
 python3 experiments/stress_tests/transfer_shock_test.py          # Action swap recovery
 python3 experiments/stress_tests/noise_test.py                   # 10x sensory noise
+python3 experiments/prospective_operator_test.py                 # Acrobot operator selection
 
 # Dashboard
 cd dashboard && streamlit run app.py
@@ -45,9 +47,9 @@ python3 qwen/main.py
 - **agents/** — RL policy (REINFORCE + mutation), swarm (holographic channel), thermodynamic (σ-based health), LLM cortex (LM Studio)
 - **agi/** — Hippocampus (memory), WorldModel (prediction + curiosity), HierarchicalController (manager→worker), GauntletMaze (15x15, 8D obs)
 - **arc/** — DSL grid operations, genetic ProgramEvolver, heuristic GridAnalyzer, self-inventing macros
-- **physics/** — Euler-Maruyama ODE solver, Schnakenberg entropy, double-well/Kramers substrates
+- **physics/** — Milstein ODE solver, Schnakenberg entropy, double-well/Kramers substrates, N-state simplex dynamics
 - **qwen/** — Thermodynamic-aware Qwen LLM inference with chaos-driven sampling (separate `setup.py`)
-- **experiments/** — Training scripts, stress tests, ablations. Shared utilities in `experiments/utils.py`
+- **experiments/** — Training scripts, stress tests, ablations, prospective operator test. Shared utilities in `experiments/utils.py`
 - **dashboard/** — 5-page Streamlit UI (replayer, physics sandbox, Lorenz explorer, live training, ARC solver)
 
 **Key patterns**:
@@ -64,8 +66,14 @@ python3 qwen/main.py
 
 - **Shared experiment utilities**: New experiment code should import from `experiments/utils.py` (REINFORCE step, brain damage, smoothing, env wrappers, ablation injector) instead of duplicating logic.
 - **Virtualenv**: Use `.venv3/bin/python3`, not system python.
-- **Checkpoint**: `CHECKPOINT.md` lives in project root — records session state for context continuity.
+- **Checkpoint**: `CHECKPOINT.md` in project root — records session state for context continuity.
 - **Pure ES vs gradient**: The thesis uses evolutionary/thermodynamic self-modification. Do not introduce gradient descent (REINFORCE, backprop) into the core evolutionary loop. REINFORCE exists only in the RL experiment scripts as a baseline comparison mechanism.
+- **Stochastic physics tests**: Use multi-trajectory averaging (n_runs=10) to reduce sampling variance. Single-trajectory results are unreliable at moderate T.
+- **N-state dynamics**: Perturbation must use adversarial direction `(p-q)/||p-q||`. Never use `A @ |dq/dt|` — it gets absorbed by simplex renormalization. N=2 simplex gradient is half the scalar gradient; scale eta by 2 for equivalence.
+- **α_crit verification**: Test transient behavior near fixed point (small perturbation, short time). On compact domains, boundary effects force global convergence for all α — asymptotic tests are wrong.
+- **Stress tests**: Parametrize `env_name` and `hidden_size` — don't hardcode a single environment.
+- **LaTeX compilation**: `eval "$(/usr/libexec/path_helper)"` required for basictex PATH, then `bibtex main && pdflatex main && pdflatex main` (two passes for cross-refs and citations).
+- **Logs**: Plots go to `logs/`. Directory is git-ignored; use `git add -f logs/*.png` when committing plots.
 
 ## Git
 - Do not add co-authored-by lines to commits
