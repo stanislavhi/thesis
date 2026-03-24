@@ -21,6 +21,7 @@ python3 arc/solver.py --task 0d3d703e --generations 200          # ARC-AGI solve
 python3 physics/tests/test_bound.py                              # Core bound (20 regimes)
 python3 physics/tests/test_bound_deterministic.py
 python3 experiments/test_robustness.py                           # Chaotic vs static
+python3 agi/test_gauntlet.py                                     # AGI module smoke tests (6 tests)
 
 # Stress tests
 python3 experiments/stress_tests/brain_damage_test.py            # 50% weight destruction
@@ -42,11 +43,11 @@ python3 qwen/main.py
 **Modules**:
 - **core/** — ABCs (`EvolutionaryAgent`, `Mutator`), chaos engine, stagnation monitor, config manager, holographic scaler
 - **agents/** — RL policy (REINFORCE + mutation), swarm (holographic channel), thermodynamic (σ-based health), LLM cortex (LM Studio)
-- **agi/** — Hippocampus (memory), WorldModel (prediction + curiosity), HierarchicalController (manager→worker)
+- **agi/** — Hippocampus (memory), WorldModel (prediction + curiosity), HierarchicalController (manager→worker), GauntletMaze (15x15, 8D obs)
 - **arc/** — DSL grid operations, genetic ProgramEvolver, heuristic GridAnalyzer, self-inventing macros
 - **physics/** — Euler-Maruyama ODE solver, Schnakenberg entropy, double-well/Kramers substrates
 - **qwen/** — Thermodynamic-aware Qwen LLM inference with chaos-driven sampling (separate `setup.py`)
-- **experiments/** — Training scripts, stress tests, ablations
+- **experiments/** — Training scripts, stress tests, ablations. Shared utilities in `experiments/utils.py`
 - **dashboard/** — 5-page Streamlit UI (replayer, physics sandbox, Lorenz explorer, live training, ARC solver)
 
 **Key patterns**:
@@ -54,8 +55,17 @@ python3 qwen/main.py
 - Holographic channel: Bekenstein-limited communication + Hawking noise ∝ current loss
 - Thermodynamic self-diagnosis: σ from hidden-layer variance → healthy/frozen/overheated
 - Weight transfer across topology changes prevents catastrophic forgetting
+- Operator selection rule: additive noise for low C_V (small nets), targeted dropout for high C_V (large nets). In pure ES contexts (no gradient recovery), always use additive_noise.
+- Stagnation detection: CV of recent sigma < 5% = frozen, 5x baseline divergence = overheated (architecture-independent, replaces absolute thresholds)
 
-**Config**: `core/config.json` keyed by environment (`CartPole-v1`, `LunarLander-v3`). Access via `ConfigManager.load_config()`.
+**Config**: `core/config.json` keyed by environment (`CartPole-v1`, `LunarLander-v3`, `agi_gauntlet`). Access via `ConfigManager.load_config()`.
+
+## Conventions
+
+- **Shared experiment utilities**: New experiment code should import from `experiments/utils.py` (REINFORCE step, brain damage, smoothing, env wrappers, ablation injector) instead of duplicating logic.
+- **Virtualenv**: Use `.venv3/bin/python3`, not system python.
+- **Checkpoint**: `CHECKPOINT.md` lives in project root — records session state for context continuity.
+- **Pure ES vs gradient**: The thesis uses evolutionary/thermodynamic self-modification. Do not introduce gradient descent (REINFORCE, backprop) into the core evolutionary loop. REINFORCE exists only in the RL experiment scripts as a baseline comparison mechanism.
 
 ## Git
 - Do not add co-authored-by lines to commits
